@@ -21,9 +21,12 @@
     "laravel/sanctum": "^4.0",
     "laravel/tinker": "^2.9",
     "livewire/livewire": "^3.3",
+    "maatwebsite/excel": "^3.1",
     "pboivin/filament-peek": "^2.2",
     "romanzipp/laravel-seo": "^2.6",
     "sinnbeck/markdom": "^2.0",
+    "spatie/laravel-pdf": "^1.5",
+    "tapp/filament-google-autocomplete-field": "^1.0",
     "z3d0x/filament-logger": "^0.7.0"
   },
   "require-dev": {
