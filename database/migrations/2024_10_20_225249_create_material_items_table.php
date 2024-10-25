@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('code');
             $table->text('description')->nullable();
             $table->string('supplier_name');
-            $table->string('costcode');
-            
+            $table->string('costcode')->nullable();
+            $table->boolean('is_favourite')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

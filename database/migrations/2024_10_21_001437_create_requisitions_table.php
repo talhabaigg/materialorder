@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('requisitions', function (Blueprint $table) {
             $table->id();
+            $table->string('requisition_number')->unique()->nullable();
             $table->date('date_required');
+            $table->time('pickup_time');
             $table->foreignId('supplier_id');  // supplier reference
             $table->foreignId('project_id');   // project reference
             $table->string('site_reference');
@@ -25,6 +27,9 @@ return new class extends Migration
             $table->boolean('is_processed')->default(false); // Default to false
             $table->dateTime('processed_at')->nullable();    // Nullable for when it's not processed yet
             $table->foreignId('processed_by')->nullable()->constrained('users');
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

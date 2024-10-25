@@ -8,19 +8,24 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\MaterialItem;
 use Filament\Resources\Resource;
-use Filament\Pages\Actions\Action;
+
+use Filament\Tables\Actions\Action;
 use App\Imports\MaterialItemsImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ImportAction;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Columns\CheckboxColumn;
 use App\Filament\Exports\MaterialItemExporter;
 use App\Filament\Imports\MaterialItemImporter;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\MaterialItemResource\Pages;
 use App\Filament\Resources\MaterialItemResource\RelationManagers;
-use Filament\Forms\Components\TextInput;
 
 class MaterialItemResource extends Resource
 {
@@ -46,10 +51,12 @@ class MaterialItemResource extends Resource
             ->columns([
                 TextColumn::make('code')
                     ->label('Material Name')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('description')
                     ->label('Description')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('supplier_name')
                     ->label('Supplier')
                     ->sortable(),
@@ -57,11 +64,30 @@ class MaterialItemResource extends Resource
                     ->label('Cost Code')
                     ->sortable(),
                 
+                  // Dynamic color
+                
             ])
             ->filters([
-                //
+                SelectFilter::make('supplier_name')
+                    ->multiple()
+                    ->options(function () {
+                        return MaterialItem::select('supplier_name')
+                            ->distinct() // Get unique supplier names
+                            ->pluck('supplier_name', 'supplier_name') // Create key-value pairs
+                            ->toArray(); // Convert to array
+                    })
             ])
             ->actions([
+                
+                Action::make('markProcessed')
+                ->tooltip(fn (MaterialItem $record): string => $record->is_favourite ? 'Remove from Favourite' : 'Add to Favourite')
+                ->icon('heroicon-s-star')
+                ->iconButton()
+                ->action(function (MaterialItem $record): void {
+                    $record->is_favourite = !$record->is_favourite;  // Toggle the value
+                    $record->save();  // Save the updated record
+                })
+                ->color(fn (MaterialItem $record): string => $record->is_favourite ? 'warning' : 'gray'),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -72,7 +98,7 @@ class MaterialItemResource extends Resource
             ->headerActions([
                 ImportAction::make()
                     ->importer(MaterialItemImporter::class)->label('Import'),
-                    ExportAction::make()
+                ExportAction::make()
                     ->exporter(MaterialItemExporter::class)->label('Export')
                     
                 

@@ -9,6 +9,7 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
 class StatsOverview extends BaseWidget
 {
+    protected static ?string $pollingInterval = '3s';
     protected function getStats(): array
     {
         $pending = Requisition::where('is_processed', false)->count();
@@ -16,13 +17,9 @@ class StatsOverview extends BaseWidget
         
         return [
             Stat::make('Pending Requisitions', Number::format($pending))
-                ->description('The total number of Requisitions')
-                ->icon('heroicon-o-shopping-cart'),
-            Stat::make('Completed Requisitions', Number::format($requisitions))
-                ->description('The total number of Requisitions')
-                ->icon('heroicon-o-shopping-cart'),
-
-           
+                ->icon('heroicon-o-question-mark-circle'),
+            // Stat::make('Completed Requisitions', Number::format($requisitions))
+            //     ->icon('heroicon-o-check-circle'),
         ];
     }
 }

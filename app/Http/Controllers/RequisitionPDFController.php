@@ -28,6 +28,6 @@ class RequisitionPDFController extends Controller
         ]);
 
         // Return the generated PDF as a response
-        return $pdf->download('requisition.pdf');
+        return $pdf->download("{$requisition->requisition_number}.pdf", 'requisition.pdf');
     }
 }
