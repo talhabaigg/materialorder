@@ -12,20 +12,20 @@ class RoleAndPermissionSeeder extends Seeder
     public function run()
     {
         // Create permissions
-        Permission::create(['name' => 'create requisition']);
-        Permission::create(['name' => 'delete requisition']);
-        Permission::create(['name' => 'process requisition']);
-
-
+        // Permission::create(['name' => 'create requisition']);
+        // Permission::create(['name' => 'delete requisition']);
+        $permission = Permission::create(['name' => 'process requisition']);
+        $superAdminRole = Role::firstOrCreate(['name' => 'super_admin']);
+        $superAdminRole->givePermissionTo($permission);
         // Create roles and assign existing permissions
-        $role = Role::create(['name' => 'foreman']);
-        $role->givePermissionTo(['create requisition']);
+        // $role = Role::create(['name' => 'foreman']);
+        // $role->givePermissionTo(['create requisition']);
         
-        $role = Role::create(['name' => 'admin']);
-        $role->givePermissionTo(Permission::all());
-        $adminUser = User::find(1); // Adjust this based on your user retrieval method
-        if ($adminUser) {
-            $adminUser->assignRole('admin');
-        }
+        // $role = Role::create(['name' => 'admin']);
+        // $role->givePermissionTo(Permission::all());
+        // $adminUser = User::find(1); // Adjust this based on your user retrieval method
+        // if ($adminUser) {
+        //     $adminUser->assignRole('admin');
+        // }
     }
 }

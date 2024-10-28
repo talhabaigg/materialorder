@@ -49,11 +49,26 @@ use App\Filament\Resources\RequisitionResource\Pages;
 use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
 use App\Filament\Resources\RequisitionResource\RelationManagers;
 use App\Filament\Resources\RequisitionResource\Widgets\StatsOverview;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Tapp\FilamentGoogleAutocomplete\Forms\Components\GoogleAutocomplete;
 
 
-class RequisitionResource extends Resource
+class RequisitionResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'process',
+            'unprocess',
+            'upload'
+        ];
+    }
     protected static ?string $model = Requisition::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -65,7 +80,10 @@ class RequisitionResource extends Resource
     {
         return number_format(static::getModel()::where('is_processed', false)->count());
     }
-    
+    public static function canEdit($record): bool
+    {
+        return !$record->is_processed; // Disable editing if is_processed is true
+    }
     public static function getWidgets(): array
 {
     return [
@@ -496,7 +514,7 @@ class RequisitionResource extends Resource
                         ->required()
                         ->acceptedFileTypes(['text/csv'])
                         ->label('Csv file must have the headers "item_code", "description", "qty", "cost" - Excel is not supported. Uploading items will replace any existing items - proceed with caution.')
-                        ,
+                        
                     ])
                     ->action(function (array $data, Requisition $record): void {
                         // Check if the file is uploaded
@@ -576,7 +594,7 @@ class RequisitionResource extends Resource
                         // Handle the case where no file was uploaded
                         Log::warning('No CSV file uploaded.');
                                     }
-                                })
+                                }) ->visible(fn () => Auth::user()->can('upload_requisition'))
                                 ,
                             // ReplicateAction::make(),
                             
@@ -587,7 +605,19 @@ class RequisitionResource extends Resource
                                 ->action(fn (Requisition $requisition) => self::replicateRequisition($requisition))
                                 ->color('warning')
                                 ->requiresConfirmation()->iconButton(),
-                                RestoreAction::make(),  // Option to restore soft-deleted records
+                           RestoreAction::make(),  // Option to restore soft-deleted records
+                           Action::make('markProcessed')
+                                ->tooltip(fn (Requisition $record): string => $record->is_processed ? 'Remove from processed' : 'Mark as processed'  )
+                                ->icon('heroicon-s-check-circle')
+                                ->iconButton()
+                                ->action(function (Requisition $record): void {
+                                    $record->is_processed = !$record->is_processed;  // Toggle the value
+                                    $record->save();  // Save the updated record
+                                })
+                                ->color(fn (Requisition $record): string => $record->is_processed ? 'success' : 'gray')
+                                ->visible(fn () => Auth::user()->can('process_requisition'))
+                                ->disabled(fn (Requisition $record) => $record->is_processed && !Auth::user()->can('unprocess_requisition'))
+                                ->requiresConfirmation(),
                                
                                 
                                     ])
@@ -613,6 +643,7 @@ class RequisitionResource extends Resource
             'index' => Pages\ListRequisitions::route('/'),
             'create' => Pages\CreateRequisition::route('/create'),
             'edit' => Pages\EditRequisition::route('/{record}/edit'),
+            'view' => Pages\ViewRequisition::route('{record}/view'),
         ];
     }
     public static function calculateHaversineDistance($lat1, $lon1, $lat2, $lon2)

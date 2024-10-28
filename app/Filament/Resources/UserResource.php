@@ -72,6 +72,11 @@ class UserResource extends Resource
                     ->password()
                     ->required(fn (string $operation): bool => $operation === 'create')
                     ->maxLength(255),
+                Forms\Components\Select::make('roles')
+                    ->relationship('roles', 'name')
+                    ->multiple()
+                    ->preload()
+                    ->searchable()
             ]);
     }
 
@@ -87,10 +92,13 @@ class UserResource extends Resource
 
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
-
+                Tables\Columns\TextColumn::make('roles.name')  // Adjust based on how the role is stored
+                    ->label('Role')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
+                
             ])
             ->filters([
                 //

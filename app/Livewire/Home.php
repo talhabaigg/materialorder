@@ -30,10 +30,10 @@ class Home extends Component
                     ->author(Schema::organization()->name($title))
             );
 
-        $posts = Post::published()
-            ->latest('published_at')
-            ->paginate(6);
+        // $posts = Post::published()
+        //     ->latest('published_at')
+        //     ->paginate(6);
 
-        return view('livewire.home', compact('posts'));
+        return view('livewire.home');
     }
 }

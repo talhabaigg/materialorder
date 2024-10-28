@@ -1,7 +1,7 @@
 <div>
-  <x-hero title="Home" />
+  <x-hero title="Page" />
 
-  <x-container>
+  {{-- <x-container>
     <h2 class="mb-8 text-4xl">
       Latest Posts
     </h2>
@@ -45,5 +45,5 @@
         {{ $posts->links() }}
       </div>
     @endif
-  </x-container>
+  </x-container> --}}
 </div>

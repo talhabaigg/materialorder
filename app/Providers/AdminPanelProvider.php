@@ -35,13 +35,14 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
-            ->registration()
+            // ->registration()
             ->passwordReset()
             ->emailVerification()
             ->profile()
             ->spa()
             ->databaseNotifications()
             ->plugins([
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 BreezyCore::make()
                     ->myProfile(
                         shouldRegisterUserMenu: true,
@@ -50,12 +51,7 @@ class AdminPanelProvider extends PanelProvider
                     )
                     ->enableTwoFactorAuthentication(),
 
-                CuratorPlugin::make()
-                    ->label('Media')
-                    ->pluralLabel('Media Library')
-                    ->navigationIcon('heroicon-o-photo')
-                    ->navigationGroup('Media')
-                    ->navigationCountBadge(),
+                
 
                 FilamentJobsMonitorPlugin::make()
                     ->navigationCountBadge()
