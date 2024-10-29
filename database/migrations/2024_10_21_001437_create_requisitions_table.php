@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('delivery_contact');
             $table->string('pickup_by');
             $table->foreignId('requested_by');  // user who requested
-            $table->string('deliver_to');
+            $table->foreignId('deliver_to');
             $table->text('notes')->nullable();
             $table->boolean('is_processed')->default(false); // Default to false
             $table->dateTime('processed_at')->nullable();    // Nullable for when it's not processed yet

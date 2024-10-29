@@ -63,7 +63,7 @@ class RequisitionPolicy
      */
     public function forceDelete(User $user, Requisition $requisition): bool
     {
-        return $user->can('force_delete_requisition');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class RequisitionPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_requisition');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class RequisitionPolicy
      */
     public function restore(User $user, Requisition $requisition): bool
     {
-        return $user->can('restore_requisition');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class RequisitionPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_requisition');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class RequisitionPolicy
      */
     public function replicate(User $user, Requisition $requisition): bool
     {
-        return $user->can('replicate_requisition');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,11 +103,6 @@ class RequisitionPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_requisition');
+        return $user->can('{{ Reorder }}');
     }
-
-    public function process(User $user)
-{
-    return $user->can('process_requisition');
-}
 }

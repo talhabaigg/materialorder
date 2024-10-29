@@ -34,6 +34,7 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TimePicker;
@@ -47,9 +48,9 @@ use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\RequisitionResource\Pages;
 use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\RequisitionResource\RelationManagers;
 use App\Filament\Resources\RequisitionResource\Widgets\StatsOverview;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Tapp\FilamentGoogleAutocomplete\Forms\Components\GoogleAutocomplete;
 
 
@@ -152,7 +153,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                             //     ->required()
                             //     ->columnSpan(1),
 
-                                Select::make('supplier_id')
+                                Select::make('supplier_name')
                                 ->label('Supplier')
                                 ->required()
                                 ->columnSpan(1)
@@ -298,13 +299,13 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ->reactive()
                                 ->helperText(function (callable $get) {
                                     // Check if 'supplier_id' is empty and display helper text with red text
-                                    return empty($get('../../supplier_id')) 
+                                    return empty($get('../../supplier_name')) 
                                         ? new HtmlString('<span style="color:red;">Please select supplier before searching</span>')
                                         : null;
                                 })
                                 
                                 ->options(function (callable $get) {
-                                    $supplierId = $get('../../supplier_id');
+                                    $supplierId = $get('../../supplier_name');
                                     $lineItems = $get('../../lineItems') ?? [];
                                     $selectedCodes = collect($lineItems)->pluck('item_code')->filter()->toArray();
                                     
@@ -336,28 +337,13 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 })
                                 
                                 
-                                // (function (callable $get) {
-                                    
-                                //     // Log::info('Supplier Name:', ['supplier_name' => $get('../../supplier_id')]);
-                                //     $supplierId = $get('../../supplier_id');
-                                //     $lineItems = $get('../../lineItems') ?? [];
-                                //     $selectedCodes = collect($lineItems)->pluck('item_code')->filter()->toArray();
-                                //     // Check if supplier_id is present and filter MaterialItem based on the supplier
-                                //     return MaterialItem::when($supplierId, function ($query) use ($supplierId) {
-                                //         $query->where('supplier_name', $supplierId); // Assuming 'supplier_id' is the foreign key
-                                //     })
-                                //     ->when($selectedCodes, function ($query) use ($selectedCodes) {
-                                //         $query->whereNotIn('code', $selectedCodes); // Exclude already selected item codes
-                                //     })
-                                //     ->pluck('description', 'description')
-                                //     ->toArray();
-                                // })
+                               
                                 ->columnspan(4)
                                 ->searchable()
                                 ->required()
                                 ->disabled(function (callable $get) {
                                     // Disable the select field if supplier_id is null
-                                    return is_null($get('../../supplier_id'));
+                                    return is_null($get('../../supplier_name'));
                                 })
                                 ->afterStateUpdated(function ($state, callable $set) {
                                     // Fetch the associated description when item_code is selected
@@ -375,7 +361,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ->reactive()
                                 ->helperText(function (callable $get) {
                                     // Check if 'supplier_id' is empty and display helper text with red text
-                                    return empty($get('../../supplier_id')) 
+                                    return empty($get('../../supplier_name')) 
                                         ? new HtmlString('<span style="color:red;">Please select supplier before searching</span>')
                                         : null;
                                 })
@@ -383,7 +369,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ->options(function (callable $get) {
                                     
                                     // Log::info('Supplier Name:', ['supplier_name' => $get('../../supplier_id')]);
-                                    $supplierId = $get('../../supplier_id');
+                                    $supplierId = $get('../../supplier_name');
                                     $lineItems = $get('../../lineItems') ?? [];
                                     $selectedCodes = collect($lineItems)->pluck('item_code')->filter()->toArray();
                                     // Check if supplier_id is present and filter MaterialItem based on the supplier
@@ -402,7 +388,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ->columnspan(3)
                                 ->disabled(function (callable $get) {
                                     // Disable the select field if supplier_id is null
-                                    return is_null($get('../../supplier_id'));
+                                    return is_null($get('../../supplier_name'));    
                                 })
                                 ->afterStateUpdated(function ($state, callable $set) {
                                     // Fetch the associated description when item_code is selected
@@ -447,17 +433,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
         return $table
             ->columns([
                 
-                // ToggleColumn::make('is_processed')->afterStateUpdated(function (Requisition $record, bool $state) {
-                //     // Toggle is_processed status
-                //     $record->update(['is_processed' => $state]);
-            
-                //     // Send notification after toggling
-                //     Notification::make()
-                //         ->title('Requisition Updated')
-                //         ->body($state ? 'Requisition has been processed.' : 'Requisition has been marked as unprocessed.')
-                //         ->success() // Or you can use .danger() for error messages
-                //         ->send();
-                // }),
+               
                
                 TextColumn::make('requisition_number')->label('Req #')->sortable(),
                 
@@ -465,18 +441,36 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                     $project = \App\Models\Project::find($record->project_id);
                     return $project ? $project->name : 'N/A'; // Return 'N/A' if project is not found
                 }),
-                TextColumn::make('supplier_id')->sortable(),
-                TextColumn::make('deliver_to')->sortable()->limit(20) // Limit the text to 50 characters
-                ->wrap() // Optional: Wrap the text if needed
-                ->tooltip(fn ($record) => $record->deliver_to),
-                TextColumn::make('created_at')
-                ->label('Submitted on')
-                ->sortable()
+                TextColumn::make('supplier_name')->sortable(),
+                ImageColumn::make('creator.name') // Access the creator's name
+                ->getStateUsing(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->creator->name) . '&background=0D8ABC&color=fff&size=128')
+                ->label('Submitted by')
+                ->size(32) // Set the size of the avatar
+                ->circular() // Make the avatar circular
+                // ->sortable() // Enable sorting by this column
+                ->tooltip(fn (Requisition $record): string => $record->created_at->diffForHumans())
+                ->alignCenter(), 
+                ImageColumn::make('updator.name') // Access the updator's name
+                ->getStateUsing(fn ($record) => 
+                    $record->updator?->name 
+                        ? 'https://ui-avatars.com/api/?name=' . urlencode($record->updator->name) . '&background=0D8ABC&color=fff&size=128' 
+                        : null // Return null if there's no updator name
+                )
+                ->label('Updated by')
+                ->size(32) // Set the size of the avatar
+                ->circular() // Make the avatar circular
                 
-                ->formatStateUsing(fn ($state) => Carbon::parse($state)->diffForHumans()),
+                
+                ->alignCenter(), // Center align the avatar
+                
+                // TextColumn::make('created_at')
+                // ->label('Submitted on')
+                // ->sortable()
+                
+                // ->formatStateUsing(fn ($state) => Carbon::parse($state)->diffForHumans()),
                 
                    
-                TextColumn::make('pickup_by')->sortable(),
+                // TextColumn::make('pickup_by')->sortable(),
                 
             ])
             ->filters([

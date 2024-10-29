@@ -14,7 +14,7 @@ class Requisition extends Model
     protected $fillable = [
         'date_required', 
         'pickup_time',
-        'supplier_id', 
+        'supplier_name', 
         'project_id', 
         'site_reference', 
         'delivery_contact', 
@@ -35,11 +35,28 @@ class Requisition extends Model
 
             // Set the requisition_number using the incremented id
             $requisition->requisition_number = 'REQ-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+
+            $requisition->created_by = auth()->id();
         });
+        static::updating(function ($requisition) {
+            // Set updated_by to the currently authenticated user's ID
+            $requisition->updated_by = auth()->id();
+        });
+        
     }
 
     public function lineItems()
     {
         return $this->hasMany(RequisitionLineItem::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updator()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

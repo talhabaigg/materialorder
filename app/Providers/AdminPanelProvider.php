@@ -31,6 +31,7 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
+            ->sidebarCollapsibleOnDesktop()
             ->default()
             ->id('admin')
             ->path('admin')
@@ -65,7 +66,8 @@ class AdminPanelProvider extends PanelProvider
                 GravatarPlugin::make(),
             ])
             ->defaultAvatarProvider(GravatarProvider::class)
-            ->favicon(asset('/favicon-32x32.png'))
+            // ->favicon(asset('/favicon-32x32.png'))
+            ->favicon(asset('/superior-group-logo.svg'))
             ->brandLogo(fn () => view('components.logo'))
             ->navigationGroups([
                 'Collections',
