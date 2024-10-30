@@ -31,6 +31,7 @@ use Filament\Navigation\NavigationItem;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -442,23 +443,24 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                     return $project ? $project->name : 'N/A'; // Return 'N/A' if project is not found
                 }),
                 TextColumn::make('supplier_name')->sortable(),
+                ViewColumn::make('avatar')->view('components.user-avatar'),
                 ImageColumn::make('creator.name') // Access the creator's name
-                ->getStateUsing(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->creator->name) . '&background=0D8ABC&color=fff&size=128')
+                ->getStateUsing(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->creator->name) . '&background=2563eb&color=fff&size=128')
                 ->label('Submitted by')
                 ->size(32) // Set the size of the avatar
-                ->circular() // Make the avatar circular
+                 // Make the avatar circular
                 // ->sortable() // Enable sorting by this column
                 ->tooltip(fn (Requisition $record): string => $record->created_at->diffForHumans())
                 ->alignCenter(), 
                 ImageColumn::make('updator.name') // Access the updator's name
                 ->getStateUsing(fn ($record) => 
                     $record->updator?->name 
-                        ? 'https://ui-avatars.com/api/?name=' . urlencode($record->updator->name) . '&background=0D8ABC&color=fff&size=128' 
+                        ? 'https://ui-avatars.com/api/?name=' . urlencode($record->updator->name) . '&background=2563eb&color=fff&size=128' 
                         : null // Return null if there's no updator name
                 )
                 ->label('Updated by')
                 ->size(32) // Set the size of the avatar
-                ->circular() // Make the avatar circular
+                // ->circular() // Make the avatar circular
                 
                 
                 ->alignCenter(), // Center align the avatar

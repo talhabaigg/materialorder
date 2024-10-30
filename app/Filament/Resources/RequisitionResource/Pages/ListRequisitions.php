@@ -10,7 +10,7 @@ use App\Filament\Resources\RequisitionResource;
 class ListRequisitions extends ListRecords
 {
     protected static string $resource = RequisitionResource::class;
-
+    
     protected function getHeaderActions(): array
     {
         return [
