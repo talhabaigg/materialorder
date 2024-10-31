@@ -65,13 +65,13 @@ class AdminPanelProvider extends PanelProvider
 
                 GravatarPlugin::make(),
             ])
-            ->defaultAvatarProvider(GravatarProvider::class)
+            // ->defaultAvatarProvider(GravatarProvider::class)
             // ->favicon(asset('/favicon-32x32.png'))
             ->favicon(asset('/superior-group-logo.svg'))
             ->brandLogo(fn () => view('components.logo'))
             ->navigationGroups([
-                'Collections',
-                'Media',
+                'Main',
+                'Admin',
                 'Settings',
             ])
             ->colors([

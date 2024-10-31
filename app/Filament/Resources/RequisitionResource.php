@@ -5,12 +5,14 @@ namespace App\Filament\Resources;
 use Closure;
 use Carbon\Carbon;
 use Filament\Forms;
+use App\Models\User;
 use Filament\Tables;
 use App\Models\Project;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Requisition;
+use Illuminate\Support\Str;
 use App\Models\MaterialItem;
 use Filament\Resources\Resource;
 use Filament\Actions\DeleteAction;
@@ -35,19 +37,24 @@ use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Filters\TrashedFilter;
+use LaraZeus\Popover\Tables\PopoverColumn;
 use Filament\Tables\Columns\CheckboxColumn;
 use Filament\Tables\Actions\ReplicateAction;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\MarkdownEditor;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\RequisitionResource\Pages;
+use Filament\AvatarProviders\Contracts\AvatarProvider;
 use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\RequisitionResource\RelationManagers;
@@ -73,9 +80,9 @@ class RequisitionResource extends Resource implements HasShieldPermissions
     }
     protected static ?string $model = Requisition::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-document-currency-dollar';
     
-    protected static ?string $navigationGroup = 'Collections';
+    protected static ?string $navigationGroup = 'Main';
     
     protected static ?int $navigationSort = 1;
     public static function getNavigationBadge(): ?string
@@ -109,15 +116,15 @@ class RequisitionResource extends Resource implements HasShieldPermissions
            
                 ->schema([
                     
-                    Grid::make(2) // Organize inputs in 3 columns
+                    Grid::make(3) // Organize inputs in 3 columns
                         ->schema([
                             
                             DatePicker::make('date_required')
                                 ->label('Date Required')
                                 ->required()
                                 
-                                ->columnSpan(1)
-                                ->minDate(now()->addDay(0)),
+                                ->columnSpan(1),
+                                // ->minDate(now()->addDay(0)),
                             TimePicker::make('pickup_time')->default('10:00')->withoutSeconds()->label('Delivery Time'),
                            
                             Select::make('project_id')
@@ -171,12 +178,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                    $set('lineItems.*.item_code', null); // Clear item_code in line items if needed
                                    $set('lineItems.*.description', null); // Clear description in line items if needed
                                 }),
-
-                        ]),
-                    
-                    Grid::make(2) // 2-column layout for the next fields
-                        ->schema([
-                            TextInput::make('site_reference')
+                                TextInput::make('site_reference')
                                 ->label('Site Reference')
                                 ->required()
                                 ->columnSpan(1),
@@ -185,98 +187,34 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ->label('Delivery Contact')
                                 ->required()
                                 ->columnSpan(1),
+
                         ]),
+                    
                     
                     Grid::make(2)
                         ->schema([
-                            TextInput::make('pickup_by')
+                            Grid::make(1)->schema([
+                                TextInput::make('pickup_by')
                                 ->label('Pickup By')
                                 ->required()
                                 ->columnSpan(1),
                                 TextInput::make('requested_by'),  
-                            // Select::make('requested_by')
-                            //     ->label('Requested By')
-                            //     ->required()
-                            //     ->columnSpan(1),
+                                Forms\Components\TextInput::make('deliver_to'),
+                            ])->columnSpan(1),
+                            MarkdownEditor::make('notes')
+                            ->toolbarButtons([
+                                'bold',
+                                'bulletList',
+                                'heading',
+                                'italic',
+                                'redo',
+                                'undo',])
+                                
                         ]),
-                    
-                    // TextInput::make('deliver_to')
-                    //     ->label('Deliver To')
-                    //     ->required()
-                    //     ->columnSpanFull()
-                    //     ,
-                        GoogleAutocomplete::make('google_search')
-                        ->label('Google look-up')
-                        ->countries([
-                            'US',
-                            'AU',
-                        ])
-                        ->language('pt-BR')
-                        ->withFields([
-                            Forms\Components\TextInput::make('deliver_to')
-                                ->extraInputAttributes([
-                                    'data-google-field' => '{street_number} {route}, {sublocality_level_1}, {locality}, {administrative_area_level_1}, {postal_code}, {country}',
-                                ]),
-                           
-                            // Forms\Components\TextInput::make('coordinates')
-                            //     ->extraInputAttributes([
-                            //         'data-google-field' => '{latitude}, {longitude}',
-                            //     ]),
-                            ]),
-                        // Forms\Components\Card::make('Distance')
-                        // ->schema([
-                        //     TextInput::make('coordinates_to')
-                        //         ->label('Coordinates To')
-                        //         ->reactive(), // Reactively update distance when this changes
-                
-                        //     TextInput::make('coordinates_from')
-                        //         ->label('Coordinates From')
-                        //         ->reactive(), // Reactively update distance when this changes
-                
-                        //     TextInput::make('distance')
-                        //         ->label('Distance')
-                        //         ->disabled(), // Disable editing the distance, calculated automatically
-                        //     TextInput::make('zone')
-                        //         ->label('Travel EBA Zone')
-                        //         ->disabled(),
-                        // ])
-                        // ->columns(2)
-                        // ->afterStateUpdated(function (array $state, callable $set) {
-                        //     // Get coordinates as comma-separated strings "lat,lng"
-                        //     $coordinatesTo = explode(',', $state['coordinates_to']);
-                        //     $coordinatesFrom = explode(',', $state['coordinates_from']);
-                
-                        //     if (count($coordinatesTo) == 2 && count($coordinatesFrom) == 2) {
-                        //         // Convert latitude and longitude to float
-                        //         $lat1 = floatval($coordinatesTo[0]);
-                        //         $lng1 = floatval($coordinatesTo[1]);
-                        //         $lat2 = floatval($coordinatesFrom[0]);
-                        //         $lng2 = floatval($coordinatesFrom[1]);
-                
-                        //         // Calculate the distance using the Haversine formula
-                        //         $distance = self::calculateHaversineDistance($lat1, $lng1, $lat2, $lng2);
-                        //         if ($distance < 10) {
-                        //             $zone = 'ZONE -1';
-                        //         } elseif ($distance >= 10 && $distance <= 50) {
-                        //             $zone = 'ZONE -2';
-                        //         } else {
-                        //             $zone = 'ZONE -3';
-                        //         }
-                        //         // Set the distance in the form
-                        //         $set('distance', round($distance, 3) . ' km');
-                        //         $set('zone', $zone);
-                        //     } else {
-                        //         $set('distance', 'Invalid coordinates');
-                        //         $set('zone', null);
-                        //     }
-                        // }),
                         
                         
-                    Textarea::make('notes')
-                        ->label('Notes')
-                        ->rows(3)
-                        ->nullable()
-                        ->columnSpanFull(),
+                                    
+
                 ])->collapsible()
                 ,
                 
@@ -437,19 +375,25 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                
                
                 TextColumn::make('requisition_number')->label('Req #')->sortable(),
-                
-                TextColumn::make('project_id')->sortable()->label('Project')->getStateUsing(function ($record) {
+                BadgeColumn::make('requisition_number'),
+                TextColumn::make('requisition_number')
+                    ->badge()
+                    ->color(fn($record) => $record->is_processed ? 'success' : ''), // Fallback for any other status
+                  
+                TextColumn::make('project_id')->sortable()->label('Project')
+                    
+                    
+                    ->getStateUsing(function ($record) {
                     $project = \App\Models\Project::find($record->project_id);
                     return $project ? $project->name : 'N/A'; // Return 'N/A' if project is not found
                 }),
                 TextColumn::make('supplier_name')->sortable(),
-                ViewColumn::make('avatar')->view('components.user-avatar'),
+                // ViewColumn::make('avatar')->view('components.user-avatar'),
                 ImageColumn::make('creator.name') // Access the creator's name
                 ->getStateUsing(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->creator->name) . '&background=2563eb&color=fff&size=128')
                 ->label('Submitted by')
-                ->size(32) // Set the size of the avatar
-                 // Make the avatar circular
-                // ->sortable() // Enable sorting by this column
+                ->size(24) // Set the size of the avatar
+                ->circular()
                 ->tooltip(fn (Requisition $record): string => $record->created_at->diffForHumans())
                 ->alignCenter(), 
                 ImageColumn::make('updator.name') // Access the updator's name
@@ -459,8 +403,8 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                         : null // Return null if there's no updator name
                 )
                 ->label('Updated by')
-                ->size(32) // Set the size of the avatar
-                // ->circular() // Make the avatar circular
+                ->size(24) // Set the size of the avatar
+                ->circular() // Make the avatar circular
                 
                 
                 ->alignCenter(), // Center align the avatar
@@ -468,19 +412,36 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                 // TextColumn::make('created_at')
                 // ->label('Submitted on')
                 // ->sortable()
-                
                 // ->formatStateUsing(fn ($state) => Carbon::parse($state)->diffForHumans()),
-                
-                   
                 // TextColumn::make('pickup_by')->sortable(),
                 
             ])
             ->filters([
                 Filter::make('is_processed')
-                ->label('pending')
+                ->label('Pending')
                 ->query(fn (Builder $query): Builder => $query->where('is_processed', false))
+                ->toggle()
                 ->default(),
+                SelectFilter::make('supplier_name')
+                ->label('Supplier Name')
+                ->options(
+                    MaterialItem::pluck('supplier_name', 'supplier_name')->unique() // Adjust based on your column names
+                ),
+                SelectFilter::make('created_by')
+                ->label('Submitted By')
+                ->options(
+                    User::pluck('name', 'id')->unique()->map(function ($name) {
+                        return Str::title($name); // Apply proper case to each name
+                    }) // Fetch user names and IDs
+                ),
+                SelectFilter::make('project_id')
+                ->label('Project')
+                ->options(
+                    Project::pluck('name', 'id')->unique() // Fetch user names and IDs
+                ),
+                
                 TrashedFilter::make(),
+                
             ])
             ->actions([
                 Tables\Actions\EditAction::make()->iconButton()->tooltip('Edit Requisition'),

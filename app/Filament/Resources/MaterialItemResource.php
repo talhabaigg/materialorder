@@ -31,7 +31,7 @@ class MaterialItemResource extends Resource
 {
     protected static ?string $model = MaterialItem::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
+    protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
     protected static ?string $navigationGroup = 'Admin';
 
     public static function form(Form $form): Form

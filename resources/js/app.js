@@ -3,7 +3,8 @@ import {
   Alpine,
 } from '../../vendor/livewire/livewire/dist/livewire.esm'
 
-import Tooltip from '@ryangjchandler/alpine-tooltip'
+import Tooltip from '@ryangjchandler/alpine-tooltip';
+
 
 Alpine.plugin(Tooltip)
 

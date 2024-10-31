@@ -21,9 +21,9 @@ class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
     protected static ?string $navigationLabel = 'Project Preferences';
-    protected static ?string $navigationGroup = 'Settings';
+    protected static ?string $navigationGroup = 'Admin';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-building-library';
 
     public static function form(Form $form): Form
     {

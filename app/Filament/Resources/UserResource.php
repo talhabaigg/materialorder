@@ -27,7 +27,7 @@ class UserResource extends Resource
     /**
      * The settings navigation group.
      */
-    protected static ?string $navigationGroup = 'Collections';
+    protected static ?string $navigationGroup = 'Main';
 
     /**
      * The settings navigation sort order.
@@ -89,9 +89,10 @@ class UserResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('avatar')
-                    ->getStateUsing(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->name) . '&background=0D8ABC&color=fff&size=128')
+                    ->getStateUsing(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->name) . '&background=2563eb&color=fff&size=128')
                     ->label('Avatar')
                     ->rounded(),
+                    
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
 

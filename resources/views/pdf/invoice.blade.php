@@ -39,15 +39,15 @@
         <h1>Material Requisition</h1>
     </div>
 
-    <p><strong>Date Required:</strong> {{ $date_required  }}</p>
+    <p><strong>Date Required:</strong> {{ \Carbon\Carbon::parse($date_required)->format('d/m/Y') }}</p>
     <p><strong>Supplier:</strong> {{ $supplier }}</p>
-    <p><strong>Project ID:</strong> {{ $project_id }}</p>
+    <p><strong>Project:</strong> {{ $project_id }}</p>
     <p><strong>Site Reference:</strong> {{ $site_ref }}</p>
     <p><strong>Delivery Contact:</strong> {{ $delivery_contact }}</p>
     <p><strong>Pickup By:</strong> {{ $pickup_by }}</p>
     <p><strong>Requested By:</strong> {{ $requested_by }}</p>
     <p><strong>Delivery To:</strong> {{ $delivery_to }}</p>
-    <p><strong>Notes:</strong> {{ $notes }}</p>
+    <p><strong>Notes:</strong> {!! $notes !!}</p> <!-- Rendered HTML from Markdown -->
 
     <h2>Requested Items</h2>
     <table>
