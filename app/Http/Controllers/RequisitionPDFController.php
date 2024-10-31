@@ -15,7 +15,7 @@ class RequisitionPDFController extends Controller
         // Retrieve line items for the requisition
         $lineItems = $requisition->lineItems;
         $converter = new CommonMarkConverter();
-        $notesHtml = $converter->convertToHtml($requisition->notes);
+        $notesHtml = $requisition->notes ? $converter->convert($requisition->notes) : ''; //Convert only if notes is not null
         $pdf = Pdf::loadView('pdf.invoice', [
             'date_required' => $requisition->date_required,
             'supplier' => $requisition->supplier_name, // or use a relevant field
