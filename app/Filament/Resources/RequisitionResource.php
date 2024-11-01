@@ -48,6 +48,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Filters\TrashedFilter;
 use LaraZeus\Popover\Tables\PopoverColumn;
+use App\Notifications\RequisitionProcessed;
 use Filament\Tables\Columns\CheckboxColumn;
 use Filament\Tables\Actions\ReplicateAction;
 use Filament\Forms\Components\DateTimePicker;
@@ -57,9 +58,10 @@ use App\Filament\Resources\RequisitionResource\Pages;
 use Filament\AvatarProviders\Contracts\AvatarProvider;
 use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+// use App\Filament\Resources\RequisitionResource\Widgets\StatsOverview;
 use App\Filament\Resources\RequisitionResource\RelationManagers;
-use App\Filament\Resources\RequisitionResource\Widgets\StatsOverview;
 use Tapp\FilamentGoogleAutocomplete\Forms\Components\GoogleAutocomplete;
+use Filament\Notifications\Actions\Action as NotificationAction; 
 
 
 class RequisitionResource extends Resource implements HasShieldPermissions
@@ -85,6 +87,20 @@ class RequisitionResource extends Resource implements HasShieldPermissions
     protected static ?string $navigationGroup = 'Main';
     
     protected static ?int $navigationSort = 1;
+
+    public static function getEloquentQuery(): Builder
+    {
+        $user = Auth::user();
+
+        // Check if the user is not a Superadmin
+        if (!$user->hasRole('super_admin')) {
+            // Limit to records where 'created_by' matches the user's ID
+            return parent::getEloquentQuery()->where('created_by', $user->id);
+        }
+
+        // If Superadmin, show all records without filtering
+        return parent::getEloquentQuery();
+    }
     public static function getNavigationBadge(): ?string
     {
         return number_format(static::getModel()::where('is_processed', false)->count());
@@ -93,14 +109,12 @@ class RequisitionResource extends Resource implements HasShieldPermissions
     {
         return !$record->is_processed; // Disable editing if is_processed is true
     }
-    public static function getWidgets(): array
-{
-    return [
-        RequisitionResource\Widgets\StatsOverview::class,
-    ];
-    
-
-}
+    // public static function getWidgets(): array
+    // {
+    //     return [
+    //         RequisitionResource\Widgets\StatsOverview::class,
+    //     ];
+    // }
     
     public static function form(Form $form): Form
     {
@@ -445,17 +459,8 @@ class RequisitionResource extends Resource implements HasShieldPermissions
             ])
             ->actions([
                 Tables\Actions\EditAction::make()->iconButton()->tooltip('Edit Requisition'),
-                Action::make('markProcessed')
-                    ->tooltip(fn (Requisition $record): string => $record->is_processed ? 'Unmark as processed' : 'Mark as processed')
-                    ->icon('heroicon-o-check-circle')
-                    ->iconButton()
-                    ->action(function (Requisition $record): void {
-                        $record->is_processed = !$record->is_processed;  // Toggle the value
-                        $record->save();  // Save the updated record
-                    })
-                    ->color(fn (Requisition $record): string => $record->is_processed ? 'success' : 'gray')
-                    ->visible(fn (): bool => Auth::check() && Auth::user()->isAdmin()),
-                Tables\Actions\DeleteAction::make()->iconButton()->tooltip('Delete Requisition')->requiresConfirmation(),
+                
+                Tables\Actions\DeleteAction::make()->iconButton()->tooltip('Delete Requisition')->requiresConfirmation()->visible(fn (): bool => Auth::check() && Auth::user()->role('super_admin')),
                 
                 Action::make('download')
                     ->icon('heroicon-o-document')
@@ -466,12 +471,10 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                     ->openUrlInNewTab(),
                 Action::make('upload items')->tooltip('Upload csv to add material items')->icon('heroicon-o-arrow-up-tray')->iconButton()
                     ->form([
-                        
                         FileUpload::make('upload_csv')
                         ->required()
                         ->acceptedFileTypes(['text/csv'])
                         ->label('Csv file must have the headers "item_code", "description", "qty", "cost" - Excel is not supported. Uploading items will replace any existing items - proceed with caution.')
-                        
                     ])
                     ->action(function (array $data, Requisition $record): void {
                         // Check if the file is uploaded
@@ -569,21 +572,61 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ->iconButton()
                                 ->action(function (Requisition $record): void {
                                     $record->is_processed = !$record->is_processed;  // Toggle the value
+                                    $record->processor = Auth::id(); // Set the processed_by field to the authenticated user's ID
+                                    $record->processed_at = now();
+                                    $link = url("/admin/requisitions/{$record->id}/view");
                                     $record->save();  // Save the updated record
+                                    if ($record->creator) {
+                                        // Get the formatted processed_at time
+                                        $processedAt = Carbon::parse($record->processed_at);
+                                        $now = now('Australia/Brisbane');
+                                    
+                                        // Determine the formatted message
+                                        if ($processedAt->isToday()) {
+                                            $timeMessage = 'Today at ' . $processedAt->format('g:i A'); 
+                                        } elseif ($processedAt->isYesterday()) {
+                                            $timeMessage = 'Yesterday at ' . $processedAt->format('g:i A');
+                                        } elseif ($processedAt->diffInDays($now) <= 7) {
+                                            $timeMessage = $processedAt->diffInDays($now) . ' days ago at ' . $processedAt->format('g A');
+                                        } else {
+                                            $timeMessage = 'On ' . $processedAt->format('jS F, Y') . ' at ' . $processedAt->format('g A');
+                                        }
+                                    
+                                        $record->creator->notify(
+                                            Notification::make()
+                                                ->title('Requisition Processed: ' . $record->requisition_number) // Title with requisition number
+                                                ->success() // Mark as a success notification
+                                                ->body('The requisition has been ' . ($record->is_processed ? 'processed' : 'unprocessed') . ' by ' . Auth::user()->name . ' ' . $timeMessage )
+                                                // Save it to the database
+                                                ->actions([
+                                                    NotificationAction::make('view') // Create a new action named 'view'
+                                                        ->url($link) // Set the URL for the action
+                                                        ->button() // Make it a button
+                                                       
+                                                ])
+                                                ->toDatabase(),
+                                               
+                                        );
+                                    }
+                                     else {
+                                        \Log::warning('No creator found for the requisition:', ['requisition_id' => $record->id]);
+                                    }
+                         
+                                  
                                 })
                                 ->color(fn (Requisition $record): string => $record->is_processed ? 'success' : 'gray')
                                 ->visible(fn () => Auth::user()->can('process_requisition'))
-                                ->disabled(fn (Requisition $record) => $record->is_processed && !Auth::user()->can('unprocess_requisition'))
-                                ->requiresConfirmation(),
+                                ->disabled(fn (Requisition $record) => $record->is_processed && !Auth::user()->can('unprocess_requisition')),
+                                // ->requiresConfirmation(),
                                
                                 
-                                    ])
-                        ->bulkActions([
-                                        Tables\Actions\BulkActionGroup::make([
-                                            Tables\Actions\DeleteBulkAction::make(),
+                            ]);
+                        // ->bulkActions([
+                        //                 // Tables\Actions\BulkActionGroup::make([
+                        //                 //     Tables\Actions\DeleteBulkAction::make(),
                                             
-                                        ]),
-                                    ]);
+                        //                 // ]),
+                        //             ]);
                         
     }
 

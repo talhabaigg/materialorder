@@ -13,7 +13,7 @@ class StatsOverview extends BaseWidget
     protected function getStats(): array
     {
         $pending = Requisition::where('is_processed', false)->count();
-        $requisitions = Requisition::where('is_processed', true)->count();;
+        $requisitions = Requisition::where('is_processed', true)->count();
         
         return [
             Stat::make('Pending Requisitions', Number::format($pending))

@@ -59,6 +59,11 @@ class Requisition extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public function processor()
+    {
+        return $this->belongsTo(User::class, 'processed_by');
+    }
     public function projectsetting()
     {
         return $this->belongsTo(Project::class, 'project_id');

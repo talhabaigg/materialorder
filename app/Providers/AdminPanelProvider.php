@@ -2,29 +2,30 @@
 
 namespace App\Providers;
 
-use App\Filament\Auth\Login;
-use Awcodes\Curator\CuratorPlugin;
-use Awcodes\FilamentGravatar\GravatarPlugin;
-use Awcodes\FilamentGravatar\GravatarProvider;
-use BezhanSalleh\FilamentExceptions\FilamentExceptionsPlugin;
-use Croustibat\FilamentJobsMonitor\FilamentJobsMonitorPlugin;
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
-use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\Widgets;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Filament\PanelProvider;
+use App\Filament\Auth\Login;
+use Awcodes\Curator\CuratorPlugin;
+use Filament\Support\Colors\Color;
+use Filament\Support\Enums\MaxWidth;
+use Filament\Http\Middleware\Authenticate;
+use Jeffgreco13\FilamentBreezy\BreezyCore;
+use Awcodes\FilamentGravatar\GravatarPlugin;
+use Pboivin\FilamentPeek\FilamentPeekPlugin;
+use Awcodes\FilamentGravatar\GravatarProvider;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
-use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Jeffgreco13\FilamentBreezy\BreezyCore;
-use Pboivin\FilamentPeek\FilamentPeekPlugin;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use BezhanSalleh\FilamentExceptions\FilamentExceptionsPlugin;
+use Croustibat\FilamentJobsMonitor\FilamentJobsMonitorPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -55,6 +56,9 @@ class AdminPanelProvider extends PanelProvider
                 
 
                 FilamentJobsMonitorPlugin::make()
+                    ->enableNavigation(
+                        fn () => auth()->user()->hasRole('super_admin') || auth()->user()->can('view_any_queue_job)'),
+                    )
                     ->navigationCountBadge()
                     ->navigationGroup('Settings'),
 
@@ -63,7 +67,7 @@ class AdminPanelProvider extends PanelProvider
 
                 FilamentExceptionsPlugin::make(),
 
-                GravatarPlugin::make(),
+                // GravatarPlugin::make(),
             ])
             // ->defaultAvatarProvider(GravatarProvider::class)
             // ->favicon(asset('/favicon-32x32.png'))
@@ -74,6 +78,7 @@ class AdminPanelProvider extends PanelProvider
                 'Admin',
                 'Settings',
             ])
+            ->maxContentWidth(MaxWidth::ScreenTwoExtraLarge)
             ->colors([
                 'primary' => Color::Blue,
             ])
