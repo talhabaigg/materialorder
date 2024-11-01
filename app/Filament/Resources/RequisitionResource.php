@@ -572,7 +572,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ->iconButton()
                                 ->action(function (Requisition $record): void {
                                     $record->is_processed = !$record->is_processed;  // Toggle the value
-                                    $record->processor = Auth::id(); // Set the processed_by field to the authenticated user's ID
+                                    $record->processed_by = Auth::id(); // Set the processed_by field to the authenticated user's ID
                                     $record->processed_at = now();
                                     $link = url("/admin/requisitions/{$record->id}/view");
                                     $record->save();  // Save the updated record
