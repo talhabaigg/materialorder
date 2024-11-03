@@ -30,6 +30,7 @@ use Filament\Support\Enums\ActionSize;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Navigation\NavigationItem;
+use Filament\Panel\Concerns\HasAvatars;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
@@ -42,6 +43,7 @@ use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -54,21 +56,22 @@ use Filament\Tables\Columns\CheckboxColumn;
 use Filament\Tables\Actions\ReplicateAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\MarkdownEditor;
+use Filament\AvatarProviders\UiAvatarsProvider;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\RequisitionResource\Pages;
 use Filament\AvatarProviders\Contracts\AvatarProvider;
 use Filament\Notifications\Actions\Action as NotificationAction;
-use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
 // use App\Filament\Resources\RequisitionResource\Widgets\StatsOverview;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
 
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\RequisitionResource\RelationManagers;
-use Filament\Forms\Components\RichEditor;
 use Tapp\FilamentGoogleAutocomplete\Forms\Components\GoogleAutocomplete; 
 
 
 class RequisitionResource extends Resource implements HasShieldPermissions
 {
+    use HasAvatars;
     public static function getPermissionPrefixes(): array
     {
         return [
@@ -82,6 +85,11 @@ class RequisitionResource extends Resource implements HasShieldPermissions
             'unprocess',
             'upload'
         ];
+    }
+    public static function boot()
+    {
+        // Set the default avatar provider for the resource
+        static::defaultAvatarProvider(UiAvatarsProvider::class);
     }
     protected static ?string $model = Requisition::class;
 
@@ -393,18 +401,16 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                
                 TextColumn::make('requisition_number')->label('Req #')->sortable(),
                 BadgeColumn::make('requisition_number'),
-                TextColumn::make('requisition_number')
-                    ->badge()
-                    ->color(fn($record) => $record->is_processed ? 'success' : ''), // Fallback for any other status
-                  
+                
+
                 TextColumn::make('project_id')->sortable()->label('Project')
-                    
-                    
-                    ->getStateUsing(function ($record) {
+                   ->getStateUsing(function ($record) {
                     $project = \App\Models\Project::find($record->project_id);
                     return $project ? $project->name : 'N/A'; // Return 'N/A' if project is not found
                 }),
-                // TextColumn::make('supplier_name')->sortable(),
+                TextColumn::make('supplier_name')->sortable(),
+               
+                
                 \LaraZeus\Popover\Tables\PopoverColumn::make('creator.name')
                 // most of filament methods will work
 
@@ -436,11 +442,11 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                 // ->formatStateUsing(fn($record) => view('components.user-avatar'))
                 // ->searchable(),
                 // ImageColumn::make('creator.name') // Access the creator's name
-                // ->getStateUsing(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->creator->name) . '&background=2563eb&color=fff&size=128')
-                // ->label('Submitted by')
+                // ->getStateUsing(fn ($record) => $record->creator->getAvatarUrl())
+                // ->label('')
                 // ->size(24) // Set the size of the avatar
                 // ->circular()
-                // ->tooltip(fn (Requisition $record): string => $record->created_at->diffForHumans())
+                // // ->tooltip(fn (Requisition $record): string => $record->created_at->diffForHumans())
                 // ->alignCenter(), 
                 // ImageColumn::make('updator.name') // Access the updator's name
                 // ->getStateUsing(fn ($record) => 

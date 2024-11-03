@@ -4,7 +4,7 @@
     <div class="flex justify-between items-center mb-2">
         <img 
             class="w-10 h-10 rounded-full"
-            src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=2563eb&color=fff&size=128" 
+            src={{$user->getAvatarUrl()}}
             alt="{{ $user->name }}">
     </div>
     <p class="text-base font-semibold leading-none text-gray-900 dark:text-white">

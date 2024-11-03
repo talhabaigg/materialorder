@@ -59,7 +59,7 @@
                         <div>
                             @php($uniqid = uniqid())
                             
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=2563eb&color=fff&size=128"
+                            <img src={{$user->getAvatarUrl()}}
                                  alt="{{ $user->name }}"
                                  
                                  class="w-6 h-6 rounded-full  bg-cover bg-center"/>
@@ -82,7 +82,7 @@
                         <div>
                             @php($uniqid = uniqid())
                             
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=2563eb&color=fff&size=128"
+                            <img src={{$user->getAvatarUrl()}}
                                  alt="{{ $user->name }}"
                                  
                                  class="w-6 h-6 rounded-full  bg-cover bg-center"/>
@@ -105,7 +105,7 @@
                         <div>
                             @php($uniqid = uniqid())
                             
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=2563eb&color=fff&size=128"
+                            <img src={{$user->getAvatarUrl()}}
                                  alt="{{ $user->name }}"
                                  
                                  class="w-6 h-6 rounded-full  bg-cover bg-center"/>
@@ -217,7 +217,7 @@
                                  @if(!$loop->last) pb-5 mb-5 border-b border-gray-200 @endif">
                                 <span class="flex items-center gap-1 text-gray-500 text-sm">
                                     <span class="font-medium flex items-center gap-1">
-                                        {{-- <x-user-avatar :user="$activity->user"/> --}}
+                                        <img class="rounded-full w-8 h-8"src={{$activity->user->getAvatarUrl()}} alt={{$record->user}}>
                                         {{ $activity->user->name }}
                                     </span>
                                     <span class="text-gray-400 px-2">|</span>

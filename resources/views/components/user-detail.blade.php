@@ -4,7 +4,8 @@
     <div class="mb-2 flex justify-center w-full">
         <img 
             class="w-8 h-8 rounded-full"
-            src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=2563eb&color=fff&size=128" 
+            
+            src={{$user->getAvatarUrl()}}
             alt="{{ $user->name }}">
     </div>
 </div>

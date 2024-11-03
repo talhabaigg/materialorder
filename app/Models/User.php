@@ -5,15 +5,17 @@ namespace App\Models;
 use Filament\Panel;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Filament\Panel\Concerns\HasAvatars;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Filament\AvatarProviders\UiAvatarsProvider;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Jeffgreco13\FilamentBreezy\Traits\TwoFactorAuthenticatable;
 
 class User extends Authenticatable implements FilamentUser
 {
-    use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable, HasRoles, HasAvatars;
 
     /**
      * The attributes that are mass assignable.
@@ -71,5 +73,8 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasRole('admin'); // Adjust the role name as needed
     }
-
+    public function getAvatarUrl(): string
+    {
+        return (new UiAvatarsProvider())->get($this);
+    }
 }
