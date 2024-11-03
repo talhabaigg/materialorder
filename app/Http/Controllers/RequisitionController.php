@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Requisition;
-use App\Models\RequisitionLineItem;
 use Illuminate\Http\Request;
+use App\Models\RequisitionComment;
+use App\Models\RequisitionLineItem;
 use Illuminate\Support\Facades\Storage;
 
 class RequisitionController extends Controller
@@ -56,5 +57,27 @@ class RequisitionController extends Controller
         }
     
         return redirect()->back()->with('success', 'CSV file processed and requisition updated successfully.');
+    }
+
+    public function submitComment(Request $request, $id)
+    {
+        $request->validate([
+            'comment' => 'required|string',
+        ]);
+
+        if ($request->input('selectedCommentId')) {
+            RequisitionComment::where('id', $request->input('selectedCommentId'))
+                ->update([
+                    'content' => $request->input('comment')
+                ]);
+        } else {
+            RequisitionComment::create([
+                'user_id' => auth()->user()->id,
+                'requisition_id' => $id,
+                'content' => $request->input('comment')
+            ]);
+        }
+
+        return redirect()->back()->with('success', __('Comment saved'));
     }
 }

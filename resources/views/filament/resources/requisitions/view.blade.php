@@ -40,7 +40,8 @@
                 <div>{{$record->deliver_to}}</div>
                 <span class="text-gray-500 dark:text-gray-300 text-sm font-medium">{{ __('Notes') }}</span>
                 
-                <div class="w-full prose text-white">{!! $record->notes !!}</div>
+                <div class="bg-gray-200 p-10 rounded-2xl"><div class=" text-gray-500 text-prose">{!! $record->notes !!}</div>
+                    </div>
             </div>
         
     </div>
@@ -144,11 +145,11 @@
     <div class="w-full grid sm:grid-cols-3 gap-5">
         <div class="col-span-1 sm:col-span-2 bg-white dark:bg-gray-900 shadow-sm p-10 space-y-5 rounded-lg">
         <div class="text-sm font-medium  text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
-            {{-- <button wire:click="selectTab('comments')"
-                    class="md:text-xl text-sm p-3 border-b-2 border-transparent hover:border-primary-500 flex items-center
-                    gap-1 @if($tab === 'comments') border-primary-500  text-primary-500 @else text-gray-700 @endif">
+            <button wire:click="selectTab('comments')"
+                    class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300
+                   @if($tab === 'comments') border-primary-500  text-primary-500 @else text-gray-700 @endif">
                 {{ __('Comments') }}
-            </button> --}}
+            </button>
             <button wire:click="selectTab('activities')"
                     class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300
                     @if($tab === 'activities') inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500 @else text-gray-700 @endif">
@@ -161,35 +162,26 @@
             </button>
             
         </div>
-        @if($tab === 'comments')
-                <form wire:submit.prevent="submitComment" class="pb-5">
-                    
-                    <textarea id="comment" rows="4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-500 focus:ring-opacity-50" placeholder="{{ __('Type your comment here...') }}"></textarea>
-                    <button type="submit"
-                            class="px-3 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded mt-3">
-                        {{ __($selectedCommentId ? 'Edit comment' : 'Add comment') }}
-                    </button>
-                    @if($selectedCommentId)
-                        <button type="button" wire:click="cancelEditComment"
-                                class="px-3 py-2 bg-warning-500 hover:bg-warning-600 text-white rounded mt-3">
-                            {{ __('Cancel') }}
-                        </button>
-                    @endif
-                </form>
-                {{-- @foreach($record->comments->sortByDesc('created_at') as $comment)
+        @if ($tab === 'comments')
+       
+        @livewire('comment-box', ['record' => $record])
+        @livewire('comment-list', ['record' => $record])
+
+
+        {{-- @foreach($record->comments->sortByDesc('created_at') as $comment)
                     <div
                         class="w-full flex flex-col gap-2 @if(!$loop->last) pb-5 mb-5 border-b border-gray-200 @endif ticket-comment">
                         <div class="w-full flex justify-between">
                             <span class="flex items-center gap-1 text-gray-500 text-sm">
                                 <span class="font-medium flex items-center gap-1">
-                                    <x-user-avatar :user="$comment->user"/>
+                                   
                                     {{ $comment->user->name }}
                                 </span>
                                 <span class="text-gray-400 px-2">|</span>
                                 {{ $comment->created_at->format('Y-m-d g:i A') }}
                                 ({{ $comment->created_at->diffForHumans() }})
                             </span>
-                            @if($this->isAdministrator() || $comment->user_id === auth()->user()->id)
+                            @if(  $comment->user_id === auth()->user()->id)
                                 <div class="actions flex items-center gap-2">
                                     <button type="button" wire:click="editComment({{ $comment->id }})"
                                             class="text-primary-500 text-xs hover:text-primary-600 hover:underline">
@@ -208,7 +200,9 @@
                         </div>
                     </div>
                 @endforeach --}}
-            @endif
+        
+@endif
+
         @if($tab === 'activities')
                 <div class="w-full flex flex-col pt-5">
                     @if($record->activities->count())
@@ -305,5 +299,12 @@
             document.body.removeChild(textArea);
             new Notification().success().title('{{ __('Url copied to clipboard') }}').duration(6000).send();
         });
+
+        document.getElementById('commentForm').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) { // Check for Enter key without Shift
+            e.preventDefault(); // Prevent the default new line in textarea
+            this.submit(); // Submit the form
+        }
+    });
     </script>
 @endpush

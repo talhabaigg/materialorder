@@ -89,8 +89,8 @@ class Requisition extends Model
     public function activities() {
         return $this->hasMany(RequisitionActivity::class, 'requisition_id');
     }
-    // public function activities(): HasMany
-    // {
-    //     return $this->hasMany(TicketActivity::class, 'ticket_id', 'id');
-    // }
+    public function comments() {
+        return $this->hasMany(RequisitionComment::class, 'requisition_id');
+    }
+    
 }

@@ -19,3 +19,5 @@ Route::post('/requisitions/{requisition}/upload-csv', [RequisitionController::cl
         return redirect()->to(route('filament.resources.requisitions.view', $requisition));
     })->name('filament.resources.requisitions.share');
     
+    Route::post('/requisitions/{id}/submit-comment', [RequisitionController::class, 'submitComment'])
+    ->name('requisitions.submitComment');

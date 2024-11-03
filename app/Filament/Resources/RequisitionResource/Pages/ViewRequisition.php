@@ -4,6 +4,8 @@ namespace App\Filament\Resources\RequisitionResource\Pages;
 
 use Filament\Actions;
 use App\Models\Requisition;
+use Filament\Actions\EditAction;
+use App\Models\RequisitionComment;
 use Filament\Pages\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Contracts\HasForms;
@@ -13,39 +15,30 @@ use Filament\Forms\Components\TextInput;
 use Filament\Pages\Actions\ButtonAction;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Forms\Components\RichEditor;
+use League\CommonMark\Input\MarkdownInput;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Forms\Components\MarkdownEditor;
 use App\Filament\Resources\RequisitionResource;
-use Filament\Actions\EditAction;
 use Filament\Forms\Concerns\InteractsWithForms;
 
-class ViewRequisition extends ViewRecord
+class ViewRequisition extends ViewRecord implements HasForms
 {
-    
+   
     protected static string $resource = RequisitionResource::class;
 
     // Add custom view if necessary
     protected static string $view = 'filament.resources.requisitions.view';
 
-    public string $tab = 'activities';
+    public string $tab = 'comments';
     public $selectedCommentId;
     public $comment = '';
-    public function mount($record): void
-    {
-        parent::mount($record);
-        
-        $this->form = $this->makeForm()
-            ->schema($this->getFormSchema())
-            ->model($this->record)
-            ->statePath('commentForm');
-    }
-    public function getFormSchema(): array
-    {
-        return [
-            RichEditor::make('comment') // Add a field name for binding
-                ->statePath('comment')
-                ->placeholder('Type a new comment') // Set the placeholder text here
-                ->required(),
-        ];
-    }
+
+    
+
+    
+
+  
+    // }
     public function selectTab(string $tab): void
     {
         $this->tab = $tab;
@@ -66,4 +59,6 @@ class ViewRequisition extends ViewRecord
             
         ];
     }
+
+   
 }
