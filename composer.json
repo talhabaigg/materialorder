@@ -82,5 +82,11 @@
     }
   },
   "minimum-stability": "stable",
+  "repositories": [
+    {
+        "type": "composer",
+        "url": "https://satis.spatie.be"
+    }
+],
   "prefer-stable": true
 }

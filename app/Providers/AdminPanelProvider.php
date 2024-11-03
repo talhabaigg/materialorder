@@ -78,7 +78,7 @@ class AdminPanelProvider extends PanelProvider
                 'Admin',
                 'Settings',
             ])
-            ->maxContentWidth(MaxWidth::ScreenTwoExtraLarge)
+            ->maxContentWidth(MaxWidth::Full)
             ->colors([
                 'primary' => Color::Blue,
             ])

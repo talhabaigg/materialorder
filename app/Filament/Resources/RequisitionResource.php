@@ -31,6 +31,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Navigation\NavigationItem;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
@@ -56,12 +57,14 @@ use Filament\Forms\Components\MarkdownEditor;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\RequisitionResource\Pages;
 use Filament\AvatarProviders\Contracts\AvatarProvider;
+use Filament\Notifications\Actions\Action as NotificationAction;
 use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 // use App\Filament\Resources\RequisitionResource\Widgets\StatsOverview;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+
 use App\Filament\Resources\RequisitionResource\RelationManagers;
-use Tapp\FilamentGoogleAutocomplete\Forms\Components\GoogleAutocomplete;
-use Filament\Notifications\Actions\Action as NotificationAction; 
+use Filament\Forms\Components\RichEditor;
+use Tapp\FilamentGoogleAutocomplete\Forms\Components\GoogleAutocomplete; 
 
 
 class RequisitionResource extends Resource implements HasShieldPermissions
@@ -215,7 +218,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 TextInput::make('requested_by'),  
                                 Forms\Components\TextInput::make('deliver_to'),
                             ])->columnSpan(1),
-                            MarkdownEditor::make('notes')
+                            RichEditor::make('notes')
                             ->toolbarButtons([
                                 'bold',
                                 'bulletList',
@@ -401,27 +404,56 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                     $project = \App\Models\Project::find($record->project_id);
                     return $project ? $project->name : 'N/A'; // Return 'N/A' if project is not found
                 }),
-                TextColumn::make('supplier_name')->sortable(),
+                // TextColumn::make('supplier_name')->sortable(),
+                \LaraZeus\Popover\Tables\PopoverColumn::make('creator.name')
+                // most of filament methods will work
+
+                ->searchable()
+                ->toggleable()
+                ->label('')
+                
+                ->content(fn($record) => view('components.user-card', ['record' => $record]))
+                ->formatStateUsing(function ($record) {
+                    return view('components.user-detail', ['record' => $record])->render();
+                })
+                ->html()
+                ->extraHeaderAttributes([
+                    'class' => 'w-16'
+                ])
+                // main options
+                ->trigger('hover') // support click and hover
+                ->placement('right') // for more: https://alpinejs.dev/plugins/anchor#positioning
+                ->offset(0) // int px, for more: https://alpinejs.dev/plugins/anchor#offset
+                ->popOverMaxWidth('none')
+                // ->icon('heroicon-o-chevron-right') // show custom icon
+                ->content(fn($record) => view('components.user-card', ['record' => $record])),
+                
+                
                 // ViewColumn::make('avatar')->view('components.user-avatar'),
-                ImageColumn::make('creator.name') // Access the creator's name
-                ->getStateUsing(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->creator->name) . '&background=2563eb&color=fff&size=128')
-                ->label('Submitted by')
-                ->size(24) // Set the size of the avatar
-                ->circular()
-                ->tooltip(fn (Requisition $record): string => $record->created_at->diffForHumans())
-                ->alignCenter(), 
-                ImageColumn::make('updator.name') // Access the updator's name
-                ->getStateUsing(fn ($record) => 
-                    $record->updator?->name 
-                        ? 'https://ui-avatars.com/api/?name=' . urlencode($record->updator->name) . '&background=2563eb&color=fff&size=128' 
-                        : null // Return null if there's no updator name
-                )
-                ->label('Updated by')
-                ->size(24) // Set the size of the avatar
-                ->circular() // Make the avatar circular
+                // Tables\Columns\TextColumn::make('avatar')
+                // ->label(__('Owner'))
+                // ->sortable()
+                // ->formatStateUsing(fn($record) => view('components.user-avatar'))
+                // ->searchable(),
+                // ImageColumn::make('creator.name') // Access the creator's name
+                // ->getStateUsing(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->creator->name) . '&background=2563eb&color=fff&size=128')
+                // ->label('Submitted by')
+                // ->size(24) // Set the size of the avatar
+                // ->circular()
+                // ->tooltip(fn (Requisition $record): string => $record->created_at->diffForHumans())
+                // ->alignCenter(), 
+                // ImageColumn::make('updator.name') // Access the updator's name
+                // ->getStateUsing(fn ($record) => 
+                //     $record->updator?->name 
+                //         ? 'https://ui-avatars.com/api/?name=' . urlencode($record->updator->name) . '&background=2563eb&color=fff&size=128' 
+                //         : null // Return null if there's no updator name
+                // )
+                // ->label('Updated by')
+                // ->size(24) // Set the size of the avatar
+                // ->circular() // Make the avatar circular
                 
                 
-                ->alignCenter(), // Center align the avatar
+                // ->alignCenter(), // Center align the avatar
                 
                 // TextColumn::make('created_at')
                 // ->label('Submitted on')
@@ -557,7 +589,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 }) ->visible(fn () => Auth::user()->can('upload_requisition'))
                                 ,
                             // ReplicateAction::make(),
-                            
+                            ViewAction::make('view'),
                             Action::make('Duplicate')
                             
                                 ->icon('heroicon-s-document-duplicate')
@@ -668,6 +700,9 @@ public static function replicateRequisition(Requisition $requisition): void
     // Replicate the project instance
     $newrequisition = $requisition->replicate();
     $newrequisition->is_processed = false; // Set is_processed to false
+    $newrequisition->processed_by = null;
+    $newrequisition->updated_by = null;
+    $newrequisition->processed_at = null;
     $newrequisition->date_required = now();
     $newrequisition->save();
 

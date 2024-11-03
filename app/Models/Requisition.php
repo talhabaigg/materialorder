@@ -41,9 +41,27 @@ class Requisition extends Model
         static::updating(function ($requisition) {
             // Set updated_by to the currently authenticated user's ID
             $requisition->updated_by = auth()->id();
+        
+            // Capture the original and new status of `is_processed`
+            $oldStatus = $requisition->getOriginal('is_processed');
+            $newStatus = $requisition->is_processed;
+        
+            // Log activity if `is_processed` has changed
+            if ($oldStatus != $newStatus) {
+                RequisitionActivity::create([
+                    'requisition_id' => $requisition->id,
+                    'old_status_id' => $oldStatus,
+                    'new_status_id' => $newStatus,
+                    'user_id' => auth()->id(),
+                ]);
+            }
         });
         
+        
     }
+
+    
+   
 
     public function lineItems()
     {
@@ -68,4 +86,11 @@ class Requisition extends Model
     {
         return $this->belongsTo(Project::class, 'project_id');
     }
+    public function activities() {
+        return $this->hasMany(RequisitionActivity::class, 'requisition_id');
+    }
+    // public function activities(): HasMany
+    // {
+    //     return $this->hasMany(TicketActivity::class, 'ticket_id', 'id');
+    // }
 }
