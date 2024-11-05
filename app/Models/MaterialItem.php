@@ -16,4 +16,15 @@ class MaterialItem extends Model
         'costcode', 
         
     ];
+
+    public function basic()
+    {
+        // This sets up the relationship correctly
+        return $this->hasOne(ItemBasePrice::class, 'material_item_code', 'code');
+    }
+    
+    public function vendor() {
+        return $this->hasOne(Vendor::class,  'code', 'supplier_name');
+    }
+    
 }
