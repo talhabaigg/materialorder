@@ -20,12 +20,11 @@ class RequisitionPDFController extends Controller
             foreach ($lineItems as &$lineItem) { // Use reference to update the original array
                 // Assuming each line item has a 'code' field
                 $basePrice = \App\Models\ItemBasePrice::where('material_item_code', $lineItem['item_code'])->where('item_base_id', $item_base_id->id)->first();
-                // dd($basePrice->price);
-                // Check if a base price was found and overwrite the line item price if it exists
+               
                 if ($basePrice) {
                     $lineItem['cost'] = $basePrice->price; // Update price if found
                 }
-                else $lineItem['cost'] = 'No Price Set';
+                else $lineItem['cost'] = 0;
             }
         }
        

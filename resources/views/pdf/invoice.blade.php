@@ -67,19 +67,9 @@
                 <td>{{ $line['description'] }}</td>
                 <td>{{ $line['qty'] }}</td>
                 <td>
-                    @if (is_string($line['cost']))
-                        {{ $line['cost'] }} <!-- Display the cost as a string -->
-                    @else
-                        ${{ $line['cost'] !== 0 ? number_format($line['cost'], 2) : 'Base Price not found' }} <!-- Display the cost as a number or 'NA' -->
-                    @endif
+                   {{$line['cost']}}
                 </td>
-                <td> @if (is_string($line['cost'])) || 
-                    <!-- If cost is a string, do not calculate total -->
-                            NA
-                        @else
-                            ${{ number_format($line['cost'] * $line['qty'], 2) }} <!-- Calculate total if cost is a number -->
-                        @endif
-                     </td>
+                <td>{{$line['cost'] * $line['qty']}}</td>
             </tr>
             @endforeach
         </tbody>
