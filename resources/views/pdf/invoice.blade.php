@@ -56,7 +56,8 @@
                 <th>Item Code</th>
                 <th>Description</th>
                 <th>Quantity</th>
-                <th>Cost</th>
+                <th>Cost (ea)</th>
+                <th>Total</th>
             </tr>
         </thead>
         <tbody>
@@ -65,7 +66,20 @@
                 <td>{{ $line['item_code'] }}</td>
                 <td>{{ $line['description'] }}</td>
                 <td>{{ $line['qty'] }}</td>
-                <td>{{ $line['cost'] ?? 'NA' }}</td>
+                <td>
+                    @if (is_string($line['cost']))
+                        {{ $line['cost'] }} <!-- Display the cost as a string -->
+                    @else
+                        ${{ $line['cost'] !== 0 ? number_format($line['cost'], 2) : 'Base Price not found' }} <!-- Display the cost as a number or 'NA' -->
+                    @endif
+                </td>
+                <td> @if (is_string($line['cost'])) || 
+                    <!-- If cost is a string, do not calculate total -->
+                            NA
+                        @else
+                            ${{ number_format($line['cost'] * $line['qty'], 2) }} <!-- Calculate total if cost is a number -->
+                        @endif
+                     </td>
             </tr>
             @endforeach
         </tbody>
