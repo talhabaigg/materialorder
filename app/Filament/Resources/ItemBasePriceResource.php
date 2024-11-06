@@ -25,7 +25,7 @@ class ItemBasePriceResource extends Resource
     protected static ?string $navigationLabel = 'Base Prices';
     protected static ?string $navigationGroup = 'Admin';
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-library';
+    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
 
     public static function form(Form $form): Form
     {
@@ -72,32 +72,14 @@ class ItemBasePriceResource extends Resource
                     ->money()
                     ->badge()
                     ->sortable(),
-                // Tables\Columns\TextColumn::make('created_by')
-                //     ->numeric()
-                //     ->sortable(),
-                // Tables\Columns\TextColumn::make('updated_by')
-                //     ->numeric()
-                //     ->sortable(),
-                // Tables\Columns\TextColumn::make('deleted_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
-                // Tables\Columns\TextColumn::make('created_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
-                // Tables\Columns\TextColumn::make('updated_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
+        
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                ImportAction::make()
-                    ->importer(ItemBasePriceImporter::class)->label('Import'),
+                
             ])
             ->headerActions([
                 ImportAction::make()

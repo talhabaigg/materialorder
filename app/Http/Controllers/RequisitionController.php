@@ -8,6 +8,7 @@ use App\Models\Requisition;
 use App\Models\MaterialItem;
 use Illuminate\Http\Request;
 use App\Models\ItemBasePrice;
+use App\Models\ItemProjectPrice;
 use App\Models\RequisitionComment;
 use App\Models\RequisitionLineItem;
 use Illuminate\Support\Facades\Storage;
@@ -135,9 +136,15 @@ class RequisitionController extends Controller
             // Split the costcode into two parts: first 2 digits and the last 3 digits
             $costcode = substr($costcode, 0, 2) . '-' . substr($costcode, 2);
         }
-        $cost = $materialItem ? $materialItem->basic->price : 0;
-        $itemBasePrice = ItemBasePrice::where('material_item_code', $item->item_code)->where('item_base_id', $itemBase? $itemBase->id : 0)->first();
-        $cost = $itemBasePrice->price;
+        
+       
+        $projectprice =  ItemProjectPrice::where('item_code', $item->item_code)->where('project_number', $requisition->site_reference)->first()?->price;
+        if  ($projectprice) {
+            $cost = $projectprice;
+        }
+        else 
+            $cost =  ItemBasePrice::where('material_item_code', $item->item_code)->where('item_base_id', $itemBase? $itemBase->id : 0)->first()?->price;
+        
         $description = str_replace('"', '""', $item->description);
         $data = [
             'CI',              // Type
@@ -173,18 +180,12 @@ class RequisitionController extends Controller
     }
    
 
-    // Open the file for writing
-   
-
-    // Add the headers as the first row
-  
-
-    // Add the data row
    
 
     // Close the file
     fclose($file);
 
-    return response()->download($filePath)->deleteFileAfterSend();
+    return response()->download($filePath, $requisition->requisition_number . '-sage_import_.txt')->deleteFileAfterSend();
+
 }
 }

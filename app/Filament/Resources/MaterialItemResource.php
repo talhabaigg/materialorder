@@ -76,25 +76,26 @@ class MaterialItemResource extends Resource
                     }),
                 TextColumn::make('costcode')
                     ->label('Cost Code')
-                    ->sortable(),
-                TextColumn::make('basic.price')
-                    ->label('Base Price')
                     ->sortable()
-                    ->money(),
-                 TextColumn::make('basic.base.name')
-                    ->label('basic base')
-                    ->sortable(),
-                    TextColumn::make('test')
+                    ->getStateUsing(function ($record) {
+                        $costcode = (string) $record->costcode; // Ensure it's a string
+                        // Split the string at the 2nd index and join with a hyphen
+                        $formattedCostcode = substr($costcode, 0, 2) . '-' . substr($costcode, 2);
+                        return $formattedCostcode;
+                    }),
+                
+                
+                    TextColumn::make('price')
                     ->label('Active Base Price')
                     ->sortable()
                     ->money()
                     ->getStateUsing(function ($record) {
                         $currentDate = now();
                         $itemBase = ItemBase::whereDate('effective_from', '<=', $currentDate)
-            ->whereDate('effective_to', '>=', $currentDate)->orWhereNull('effective_to')
-            ->first();
-            // dd($itemBase->id);
-            $activeBaseId = $itemBase ? $itemBase->id : null;
+                                ->whereDate('effective_to', '>=', $currentDate)->orWhereNull('effective_to')
+                                ->first();
+                            // dd($itemBase->id);
+                            $activeBaseId = $itemBase ? $itemBase->id : null;
                         
                         $itemBasePrice = ItemBasePrice::where('material_item_code', $record->code)->where('item_base_id', $activeBaseId)->first();
         
@@ -159,86 +160,6 @@ class MaterialItemResource extends Resource
                     ->importer(MaterialItemImporter::class)->label('Import'),
                 ExportAction::make()
                     ->exporter(MaterialItemExporter::class)->label('Export'),
-                Action::make('update_price')->tooltip('Update base price')->icon('heroicon-o-arrow-up-tray')->iconButton()
-                    ->form([
-                        FileUpload::make('upload_csv')
-                            ->required()
-                            ->acceptedFileTypes(['text/csv'])
-                            ->label('Csv file must have the headers "item_code", "description", "qty", "cost" - Excel is not supported. Uploading items will replace any existing items - proceed with caution.')
-                    ])
-                    ->action(function (array $data): void {
-                        set_time_limit(0);
-                        if (isset($data['upload_csv']) && !empty($data['upload_csv'])) {
-                            $fileName = $data['upload_csv'];
-                            $path = storage_path("app/public/{$fileName}");
-                
-                            if (file_exists($path)) {
-                                $csvData = array_map('str_getcsv', file($path));
-                                $currentDate = now()->startOfDay();
-                                $basePriceList = ItemBase::where('effective_from', '<=', $currentDate)
-                                    ->where(function ($query) use ($currentDate) {
-                                        $query->where('effective_to', '>=', $currentDate)
-                                              ->orWhereNull('effective_to'); // For prices with no end date
-                                    })
-                                    ->first();
-            
-                                if (!$basePriceList) {
-                                    Log::warning('No active base price list found for the current date.');
-                                    return;
-                                }
-            
-                                $baseId = $basePriceList->id;
-                               
-                                
-                                $insertData = []; // Store data for bulk insert
-            
-                                foreach ($csvData as $index => $row) {
-                                    // Skip header row (if present) or empty rows
-                                    if ($index === 0 || count($row) < 3) {
-                                        continue;
-                                    }
-            
-                                    $itemCode = Str::trim($row[0]); // Remove leading and trailing spaces
-                                   
-                                    $priceFromCsv = (float) $row[2]; // Adjust based on your CSV structure
-            
-                                    // $materialItem = MaterialItem::where('code', $itemCode)->first();
-                                    $materialItem = MaterialItem::Where('code', $itemCode)->first();
-
-            
-                                    if ($materialItem && $priceFromCsv > 0) {
-                                        // Prepare for bulk insert
-                                        $insertData[] = [
-                                            'item_base_id' => $baseId,
-                                            'material_item_id' => $materialItem->id,
-                                            'price' => $priceFromCsv,
-                                        ];
-                                    } else {
-                                        Log::warning("Material item not found or invalid price for item code: {$itemCode}");
-                                    }
-                                }
-            
-                                if (!empty($insertData)) {
-                                    foreach ($insertData as $data) {
-                                        ItemBasePrice::updateOrCreate(
-                                            [
-                                                'item_base_id' => $data['item_base_id'],
-                                                'material_item_id' => $data['material_item_id'],
-                                            ],
-                                            [
-                                                'price' => $data['price'],
-                                            ]
-                                        );
-                                    }
-                                    Log::info('Base prices updated successfully.');
-                                } else {
-                                    Log::warning('No valid base prices to update.');
-                                }
-                            } else {
-                                Log::warning("CSV file does not exist at the specified path: {$path}");
-                            }
-                        }
-                    })
                 ]);
             
                   
