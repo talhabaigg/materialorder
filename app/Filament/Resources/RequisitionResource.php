@@ -390,6 +390,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                         $projectprice = ItemProjectPrice::where('item_code', $materialItem->code)->first()?->price;
                                         if ($projectprice) {
                                             $set('cost', $projectprice);
+                                            // dd($projectprice);
                                         } else {
                                             // Try to get the base price if project-specific price is not available
                                             $item_base_id = 1;
@@ -421,7 +422,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ->placeholder('Enter quantity')
                                 ->columnspan(2)
                                 ->numeric(),
-                            MoneyInput::make('cost')->decimals(4)->columnspan(2)->default(0.0000)->currency('AUD'),
+                            MoneyInput::make('cost')->decimals(4)->step(0.0001)->columnspan(2)->default(0.0000)->currency('AUD'),
                             
                         ])
                         ->addActionLabel('Add item')

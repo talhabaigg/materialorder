@@ -21,4 +21,9 @@ class RequisitionLineItem extends Model
     {
         return $this->belongsTo(Requisition::class);
     }
+
+    protected $casts = [
+        'cost' => 'float',
+    ];
+        
 }
