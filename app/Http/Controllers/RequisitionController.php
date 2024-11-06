@@ -124,8 +124,6 @@ class RequisitionController extends Controller
         '',
         '',
         '',
-     
-        // '22/11/2024' //deliverydate from requisition
         $formattedDate = Carbon::parse($requisition->date_required)->format('d/m/Y'),
        
     ];

@@ -67,9 +67,11 @@
                 <td>{{ $line['description'] }}</td>
                 <td>{{ $line['qty'] }}</td>
                 <td>
-                   {{$line['cost']}}
+                    {{ number_format((float) $line['cost'], 2) }}
                 </td>
-                <td>{{$line['cost'] * $line['qty']}}</td>
+                <td>
+                    {{ number_format($line['cost'] * $line['qty'], 2) }}
+                </td>
             </tr>
             @endforeach
         </tbody>

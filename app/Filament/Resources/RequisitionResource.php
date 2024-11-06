@@ -9,11 +9,14 @@ use App\Models\User;
 use Filament\Tables;
 use App\Models\Project;
 use Filament\Forms\Get;
+use App\Models\ItemBase;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Requisition;
 use Illuminate\Support\Str;
 use App\Models\MaterialItem;
+use App\Models\ItemBasePrice;
+use App\Models\ItemProjectPrice;
 use Filament\Resources\Resource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ImportAction;
@@ -58,14 +61,14 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\AvatarProviders\UiAvatarsProvider;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\RequisitionResource\Pages;
-use Filament\AvatarProviders\Contracts\AvatarProvider;
-use Filament\Notifications\Actions\Action as NotificationAction;
 // use App\Filament\Resources\RequisitionResource\Widgets\StatsOverview;
-use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
+use App\Filament\Resources\RequisitionResource\Pages;
 
+use Filament\AvatarProviders\Contracts\AvatarProvider;
+use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\RequisitionResource\RelationManagers;
+use Filament\Notifications\Actions\Action as NotificationAction;
 use Tapp\FilamentGoogleAutocomplete\Forms\Components\GoogleAutocomplete; 
 
 
@@ -311,14 +314,36 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 })
                                 ->afterStateUpdated(function ($state, callable $set) {
                                     // Fetch the associated description when item_code is selected
+                                    
                                     $materialItem = MaterialItem::where('description', $state)->first();
                                     if ($materialItem) {
                                         // Populate the description if the item exists
                                         $set('item_code', $materialItem->code); // Set the description directly
+
+                                        $projectprice = ItemProjectPrice::where('item_code', $materialItem->code)->first()?->price;
+                                        if ($projectprice) {
+                                            $set('cost', $projectprice);
+                                        } else {
+                                            // Try to get the base price if project-specific price is not available
+                                            $item_base_id = 1;
+                                            $item_base_id = ItemBase::where('effective_from', '<=', now()->today())->where('effective_to', '>=', now()->today())->first()->id;
+                                            $baseprice = ItemBasePrice::where('material_item_code', $materialItem->code)->where('item_base_id', $item_base_id)->first()?->price;
+                                            if ($baseprice) {
+                                                $set('cost', $baseprice);
+                                            } elseif($baseprice===0) {
+                                                // Set a default cost if neither project-specific nor base price is found
+                                                $set('cost', 0.0000);
+                                            }
+                                            else
+                                            $set('cost', 911);
+                                        }
                                     } else {
-                                        $set('description', null); // Clear the description if no item found
+                                        
+                                        $set('cost', null);
                                     }
-                                }),  
+                                }),
+
+                               
                             Select::make('item_code')
                                 ->label('Item Code')
                                 ->required()
@@ -360,8 +385,30 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                     if ($materialItem) {
                                         // Populate the description if the item exists
                                         $set('description', $materialItem->description); // Set the description directly
+                                        
+                                        // Try to get project-specific price
+                                        $projectprice = ItemProjectPrice::where('item_code', $materialItem->code)->first()?->price;
+                                        if ($projectprice) {
+                                            $set('cost', $projectprice);
+                                        } else {
+                                            // Try to get the base price if project-specific price is not available
+                                            $item_base_id = 1;
+                                            $item_base_id = ItemBase::where('effective_from', '<=', now()->today())->where('effective_to', '>=', now()->today())->first()->id;
+                                            $baseprice = ItemBasePrice::where('material_item_code', $materialItem->code)->where('item_base_id', $item_base_id)->first()?->price;
+                                            if ($baseprice) {
+                                                $set('cost', $baseprice);
+                                            } elseif($baseprice===0) {
+                                                // Set a default cost if neither project-specific nor base price is found
+                                                $set('cost', 0.0000);
+                                            }
+                                            else
+                                            $set('cost', 911);
+                                        }
                                     } else {
-                                        $set('description', null); // Clear the description if no item found
+                                        // Clear the description if no item is found
+                                        $set('description', null);
+                                        $set('qty', null);
+                                        $set('cost', null);
                                     }
                                 }),
                                 
@@ -371,14 +418,11 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ->label('Quantity (ea)')
                                 ->default(1)
                                 ->required()
+                                ->placeholder('Enter quantity')
                                 ->columnspan(2)
                                 ->numeric(),
-                            MoneyInput::make('cost')->decimals(6)->columnspan(2)->default(0.000000)->currency('AUD'),
-                            // TextInput::make('cost')
-                            //     ->label('Cost (ea)')
-                            //     ->default(0)
-                            //     ->columnspan(2)
-                            //     ->numeric(),
+                            MoneyInput::make('cost')->decimals(4)->columnspan(2)->default(0.0000)->currency('AUD'),
+                            
                         ])
                         ->addActionLabel('Add item')
                         
@@ -499,7 +543,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                 Tables\Actions\EditAction::make()->iconButton()->tooltip('Edit Requisition'),
                 
                 Tables\Actions\DeleteAction::make()->iconButton()->tooltip('Delete Requisition')->requiresConfirmation()->visible(fn (): bool => Auth::check() && Auth::user()->role('super_admin')),
-                Action::make('test'),
+               
                 Action::make('download')
                     ->icon('heroicon-o-document')
                     ->iconButton()
