@@ -90,7 +90,7 @@ class RequisitionController extends Controller
     // Define the file path and name
     $filePath = storage_path('app/public/sage_import.txt');
     $file = fopen($filePath, 'w');
-    $poDate = Carbon::createFromFormat('d/m/Y', '22/11/2024')->format('d/m/Y');
+    $poDate = now()->format('d/m/Y');
     $currentDate = now();
     $itemBase = ItemBase::whereDate('effective_from', '<=', $currentDate)
 ->whereDate('effective_to', '>=', $currentDate)->orWhereNull('effective_to')
@@ -126,7 +126,7 @@ class RequisitionController extends Controller
         '',
      
         // '22/11/2024' //deliverydate from requisition
-        $requisition->date_required,
+        $formattedDate = Carbon::parse($requisition->date_required)->format('d/m/Y'),
        
     ];
     fputcsv($file, $headers);
