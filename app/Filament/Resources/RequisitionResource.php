@@ -499,7 +499,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                 Tables\Actions\EditAction::make()->iconButton()->tooltip('Edit Requisition'),
                 
                 Tables\Actions\DeleteAction::make()->iconButton()->tooltip('Delete Requisition')->requiresConfirmation()->visible(fn (): bool => Auth::check() && Auth::user()->role('super_admin')),
-                
+                Action::make('test'),
                 Action::make('download')
                     ->icon('heroicon-o-document')
                     ->iconButton()

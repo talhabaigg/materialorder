@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use App\Models\ItemBase;
 use App\Models\Requisition;
+use App\Models\MaterialItem;
 use Illuminate\Http\Request;
+use App\Models\ItemBasePrice;
 use App\Models\RequisitionComment;
 use App\Models\RequisitionLineItem;
 use Illuminate\Support\Facades\Storage;
@@ -80,4 +84,109 @@ class RequisitionController extends Controller
 
         return redirect()->back()->with('success', __('Comment saved'));
     }
+
+    public function sageImport(Requisition $requisition)
+{
+    // Define the file path and name
+    $filePath = storage_path('app/public/sage_import.txt');
+    $file = fopen($filePath, 'w');
+    $poDate = Carbon::createFromFormat('d/m/Y', '22/11/2024')->format('d/m/Y');
+    $currentDate = now();
+    $itemBase = ItemBase::whereDate('effective_from', '<=', $currentDate)
+->whereDate('effective_to', '>=', $currentDate)->orWhereNull('effective_to')
+->first();
+    // Prepare CSV headers
+    $headers = [
+        'C',
+        '',
+        '',
+        '',
+        // 'ALLF00', //VENDOR CODE
+        $requisition->supplier_name,
+        // '22/11/2024', //PO DATE
+        $poDate,
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+     
+        // '22/11/2024' //deliverydate from requisition
+        $poDate,
+       
+    ];
+    fputcsv($file, $headers);
+    foreach ($requisition->lineItems as $item) {
+        $materialItem = MaterialItem::where('code', $item->item_code)->first();
+        $costcode = $materialItem ? $materialItem->costcode : '';
+        if (strlen($costcode) == 5) {
+            // Split the costcode into two parts: first 2 digits and the last 3 digits
+            $costcode = substr($costcode, 0, 2) . '-' . substr($costcode, 2);
+        }
+        $cost = $materialItem ? $materialItem->basic->price : 0;
+        $itemBasePrice = ItemBasePrice::where('material_item_code', $item->item_code)->where('item_base_id', $itemBase? $itemBase->id : 0)->first();
+        $cost = $itemBasePrice->price;
+        $description = str_replace('"', '""', $item->description);
+        $data = [
+            'CI',              // Type
+            '',                // Field1
+            '',                // Field2
+            $description ?? '',  // Description
+            '',
+            $poDate,           // PO Date (repeats for each line)
+            '',
+            $requisition->site_reference,      // Code1
+            '',                // Field3
+            $costcode,          // Code2
+            'M',               // Unit Type
+            'GST',             // Tax Type
+            '',                // Field4
+            $item->qty ?? '0',    // Quantity (unit qty)
+            $cost, // Unit cost per item
+            '',                // Field5
+            '',                // Field6
+            '',                // Field7
+            '',                // Field8
+            '',                // Field9
+            $item->item_code,      // Reference
+            '',                // Field10
+            '',                // Field11
+            '',                // Field12
+            '',                // Field13
+            '',                // Field14
+        ];
+         // Write each row to the file without unnecessary quotes
+         fputcsv($file, $data, ',', '"');  // Ensure no quotes are added // Ensure no quotes are added
+         // The fourth argument controls the enclosure (use empty quotes for no enclosure)
+    }
+   
+
+    // Open the file for writing
+   
+
+    // Add the headers as the first row
+  
+
+    // Add the data row
+   
+
+    // Close the file
+    fclose($file);
+
+    return response()->download($filePath)->deleteFileAfterSend();
+}
 }

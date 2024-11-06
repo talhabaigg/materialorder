@@ -4,9 +4,10 @@ namespace App\Filament\Resources\RequisitionResource\Pages;
 
 use Filament\Actions;
 use App\Models\Requisition;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+
 use App\Models\RequisitionComment;
-use Filament\Pages\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\ActionSize;
@@ -49,10 +50,13 @@ class ViewRequisition extends ViewRecord implements HasForms
     {
         return [
             EditAction::make('Edit'),
-            \Filament\Actions\Action::make('download')
+            Action::make('createfile')->tooltip('Download Sage Import file')
+            ->icon('heroicon-o-table-cells')
+            ->label('Download PO Import file for Sage')
+            ->url(fn (Requisition $record): string => route('requisition.text', ['requisition' => $record->id]))
+            ->openUrlInNewTab(),
+            Action::make('download')
                     ->icon('heroicon-o-document')
-                   
-                    
                     ->url(fn (Requisition $record): string => route('requisition.pdf', ['requisition' => $record->id]))
                     ->openUrlInNewTab(),
             

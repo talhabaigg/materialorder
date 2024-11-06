@@ -12,6 +12,7 @@ Route::get('/', function () {
 })->name('home');
 // Route::get('/article/{post:slug}', PostShow::class)->name('post.show');
 Route::get('requisition/pdf/{requisition}', RequisitionPDFController::class)->name('requisition.pdf');
+Route::get('requisition/text/{requisition}', [RequisitionController::class, 'sageImport'])->name('requisition.text');
 Route::post('/requisitions/{requisition}/upload-csv', [RequisitionController::class, 'uploadCsv'])
     ->name('requisition.uploadCsv');
 
