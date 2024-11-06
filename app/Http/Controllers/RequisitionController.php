@@ -126,7 +126,7 @@ class RequisitionController extends Controller
         '',
      
         // '22/11/2024' //deliverydate from requisition
-        $poDate,
+        $requisition->date_required,
        
     ];
     fputcsv($file, $headers);
