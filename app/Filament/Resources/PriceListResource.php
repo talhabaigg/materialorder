@@ -2,16 +2,19 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PriceListResource\Pages;
-use App\Filament\Resources\PriceListResource\RelationManagers;
-use App\Models\PriceList;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Project;
+use Filament\Forms\Form;
+use App\Models\PriceList;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\PriceListResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\PriceListResource\RelationManagers;
+use App\Filament\Resources\PriceListResource\RelationManagers\ProjectpriceRelationManager;
 
 class PriceListResource extends Resource
 {
@@ -27,7 +30,15 @@ class PriceListResource extends Resource
                 Forms\Components\Textarea::make('name')
                     ->required()
                     ->columnSpanFull(),
-                
+
+              Select::make('site_reference')
+                    ->label('Select Project') // Optional: add a label
+                    ->options(function () {
+                        return Project::all()->pluck('name', 'site_reference')->toArray();
+                    })
+                    ->placeholder('Select a Project')->columnSpanFull() // Optional: add a placeholder
+                , 
+ 
             ]);
     }
 
@@ -38,26 +49,16 @@ class PriceListResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->badge()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('updated_by')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('project.name')
+                    ->badge()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                
             ])
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -70,7 +71,7 @@ class PriceListResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ProjectpriceRelationManager::class,
         ];
     }
 
@@ -80,6 +81,7 @@ class PriceListResource extends Resource
             'index' => Pages\ListPriceLists::route('/'),
             'create' => Pages\CreatePriceList::route('/create'),
             'edit' => Pages\EditPriceList::route('/{record}/edit'),
+            'view' => Pages\ViewPriceList::route('/{record}/view'),
         ];
     }
 }

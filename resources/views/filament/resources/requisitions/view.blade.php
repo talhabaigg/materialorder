@@ -142,7 +142,7 @@
         
     </div>
 
-    <div class="w-full grid sm:grid-cols-3 gap-5">
+    <div class="grid-cols-1 grid sm:grid-cols-3 gap-5">
         <div class="col-span-1 sm:col-span-2 bg-white dark:bg-gray-900 shadow-sm p-10 space-y-5 rounded-lg">
         <div class="text-sm font-medium  text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
             <button wire:click="selectTab('comments')"
@@ -158,7 +158,7 @@
             <button wire:click="selectTab('items')"
                     class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300
                     @if($tab === 'items') inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500 @else text-gray-700 @endif">
-                {{ __('Requisition Items') }}
+                {{ __('Items') }}
             </button>
             
         </div>
@@ -168,38 +168,7 @@
         @livewire('comment-list', ['record' => $record])
 
 
-        {{-- @foreach($record->comments->sortByDesc('created_at') as $comment)
-                    <div
-                        class="w-full flex flex-col gap-2 @if(!$loop->last) pb-5 mb-5 border-b border-gray-200 @endif ticket-comment">
-                        <div class="w-full flex justify-between">
-                            <span class="flex items-center gap-1 text-gray-500 text-sm">
-                                <span class="font-medium flex items-center gap-1">
-                                   
-                                    {{ $comment->user->name }}
-                                </span>
-                                <span class="text-gray-400 px-2">|</span>
-                                {{ $comment->created_at->format('Y-m-d g:i A') }}
-                                ({{ $comment->created_at->diffForHumans() }})
-                            </span>
-                            @if(  $comment->user_id === auth()->user()->id)
-                                <div class="actions flex items-center gap-2">
-                                    <button type="button" wire:click="editComment({{ $comment->id }})"
-                                            class="text-primary-500 text-xs hover:text-primary-600 hover:underline">
-                                        {{ __('Edit') }}
-                                    </button>
-                                    <span class="text-gray-300">|</span>
-                                    <button type="button" wire:click="deleteComment({{ $comment->id }})"
-                                            class="text-danger-500 text-xs hover:text-danger-600 hover:underline">
-                                        {{ __('Delete') }}
-                                    </button>
-                                </div>
-                            @endif
-                        </div>
-                        <div class="w-full prose">
-                            {!! $comment->content !!}
-                        </div>
-                    </div>
-                @endforeach --}}
+    
         
 @endif
 
@@ -238,44 +207,47 @@
                 </div>
             @endif
             @if($tab === 'items')
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-300 dark:text-gray-400">
-            <tr>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">
-                    Supplier Name
-                </th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">
-                    Item Code
-                </th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">
-                    Description
-                </th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">
-                    Qty
-                </th>
-            </tr>
-        </thead>
-        <tbody class=" divide-y">
-            @foreach($record->lineItems as $item)
-                <tr  class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    <td class="px-4 py-2">
-                        {{ $record->supplier_name }}  <!-- Adjust this based on your actual column name -->
-                    </td>
-                    <td class="px-4 py-2">
-                        {{ $item->item_code }}  <!-- Adjust this based on your actual column name -->
-                    </td>
-                    <td class="px-4 py-2">
-                        {{ $item->description }}  <!-- Adjust this based on your actual column name -->
-                    </td>
-                    <td class="px-4 py-2">
-                        {{ $item->qty }}  <!-- Adjust this based on your actual column name -->
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg ">
+                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-300 dark:text-gray-400">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Supplier Name</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Item Code</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Description</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Qty</th>
+                            @if(auth()->user()->hasRole('super_admin'))
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Cost</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Total</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Price Source</th>
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y">
+                        @foreach($record->lineItems as $item)
+                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                <td class="px-4 py-2">{{ $record->supplier_name }}</td>
+                                <td class="px-4 py-2">{{ $item->item_code }}</td>
+                                <td class="px-4 py-2">{{ $item->description }}</td>
+                                <td class="px-4 py-2">{{ $item->qty }}</td>
+                                @if(auth()->user()->hasRole('super_admin'))
+                                    <td class="px-4 py-2">${{ number_format((float) $item->cost, 2) }}</td>
+                                    <td class="px-4 py-2">${{ number_format((float) $item->cost * $item->qty, 2) }}</td>
+                                    <td class="px-4 py-2">{{ $item->price_list }}</td>
+                                @endif
+                            </tr>
+                              
+                        @endforeach
+                        <tr class="bg-gray-50 dark:bg-gray-300">
+                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-500 sm:pl-6 text-right" colspan="6">Subtotal gross pay</th>
+                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-500 sm:pl-6 text-left " nowrap=""> ${{ number_format($this->getTotalAmount(), 2) }}</th>
+                        </tr>
+                    </tbody>
+                </table>
+
+                
+  
             </div>
+          
 @endif
 
     </div>

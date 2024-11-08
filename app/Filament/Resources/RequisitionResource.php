@@ -388,8 +388,10 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                         
                                         // Try to get project-specific price
                                         $projectprice = ItemProjectPrice::where('item_code', $materialItem->code)->first()?->price;
+                                        $list = ItemProjectPrice::where('item_code', $materialItem->code)->first()?->price_list;
                                         if ($projectprice) {
                                             $set('cost', $projectprice);
+                                            $set('price_list', $list);
                                             // dd($projectprice);
                                         } else {
                                             // Try to get the base price if project-specific price is not available
@@ -398,9 +400,11 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                             $baseprice = ItemBasePrice::where('material_item_code', $materialItem->code)->where('item_base_id', $item_base_id)->first()?->price;
                                             if ($baseprice) {
                                                 $set('cost', $baseprice);
+                                                $set('price_list', 'base_price');
                                             } elseif($baseprice===0) {
                                                 // Set a default cost if neither project-specific nor base price is found
                                                 $set('cost', 0.0000);
+                                                $set('price_list' , 'no price set');
                                             }
                                             else
                                             $set('cost', 911);
@@ -408,8 +412,9 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                     } else {
                                         // Clear the description if no item is found
                                         $set('description', null);
-                                        $set('qty', null);
+                                        $set('qty', 1);
                                         $set('cost', null);
+                                        $set('price_list', null);
                                     }
                                 }),
                                 
@@ -422,7 +427,9 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ->placeholder('Enter quantity')
                                 ->columnspan(2)
                                 ->numeric(),
-                            MoneyInput::make('cost')->decimals(4)->step(0.0001)->columnspan(2)->default(0.0000)->currency('AUD'),
+                           TextInput::make('cost')->numeric()->visible(fn (): bool => Auth::check() && Auth::user()->hasRole('super_admin')),
+                           TextInput::make('price_list')->visible(fn (): bool => Auth::check() && Auth::user()->role('super_admin'))
+                                // MoneyInput::make('cost')->decimals(2)->step(0.0001)->columnspan(2)->default(0.0000)->currency('AUD'),
                             
                         ])
                         ->addActionLabel('Add item')
@@ -597,8 +604,37 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                         $itemCode = $row[0]; // First column: item_code
                                         $description = $row[1]; // Second column: description
                                         $qty = $row[2]; // Third column: qty
-                                        $cost = $row[3]; // Fourth column: cost
+                                        // $cost = $row[3]; // Fourth column: cost
+                                        $item_base_id = ItemBase::whereDate('effective_from', '<=', now()->toDateString()) 
+                        ->where(function ($query) {
+                            $query->whereDate('effective_to', '>=', now()->toDateString())
+                                  ->orWhereNull('effective_to');
+                        })
+                        ->first()
+                        ->id;
 
+                        $projectprice = ItemProjectPrice::where('site_reference', $record->projectsetting->site_reference)
+                        ->where('code', $itemCode)
+                        ->first()?->price;
+
+                            if ($projectprice) {
+                            $cost = $projectprice;
+                            $price_source = 'ProjectList';
+                            } else {
+                            $baseprice = ItemBasePrice::where('item_base_id', $item_base_id)
+                                                ->where('material_item_code', $itemCode)
+                                                ->first()?->price;
+
+                            if ($baseprice) {
+                            $cost = $baseprice;
+                            $price_source = 'base';
+                            } else {
+                            $cost = 0;
+                            $price_source = 'NA';
+                            }
+                            }
+
+                                           
                                         // Create new line item
                                         $newLineItems[] = [
                                             'requisition_id' => $record->id, // Foreign key
@@ -606,6 +642,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                             'description' => $description,
                                             'qty' => $qty,
                                             'cost' => $cost,
+                                            'price_list' => $price_source,
                                         ];
                                     }
 

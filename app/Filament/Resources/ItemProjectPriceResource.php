@@ -59,6 +59,7 @@ class ItemProjectPriceResource extends Resource
                 ->sortable()
                ,
                Tables\Columns\TextColumn::make('projectlist.name')
+               ->label('Project')
                 
                 ->sortable()
                ,

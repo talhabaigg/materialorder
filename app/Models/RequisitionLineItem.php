@@ -15,6 +15,7 @@ class RequisitionLineItem extends Model
         'description',
         'qty',
         'cost',
+        'price_list',
     ];
 
     public function requisition()

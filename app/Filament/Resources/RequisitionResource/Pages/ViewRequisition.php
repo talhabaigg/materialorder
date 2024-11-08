@@ -33,7 +33,13 @@ class ViewRequisition extends ViewRecord implements HasForms
     public string $tab = 'comments';
     public $selectedCommentId;
     public $comment = '';
-
+    public function getTotalAmount()
+    {
+        // Assuming the `lineItems` relationship is defined on `ViewRequisition`
+        return $this->record->lineItems->sum(function ($item) {
+            return $item->cost * $item->qty;
+        });
+    }
     
 
     
