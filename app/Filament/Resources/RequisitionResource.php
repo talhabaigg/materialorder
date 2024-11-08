@@ -613,7 +613,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                         ->first()
                         ->id;
 
-                        $projectprice = ItemProjectPrice::where('site_reference', $record->projectsetting->site_reference)
+                        $projectprice = ItemProjectPrice::where('project_number', $record->projectsetting->site_reference)
                         ->where('code', $itemCode)
                         ->first()?->price;
 
