@@ -147,7 +147,7 @@
         <div class="text-sm font-medium  text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
             <button wire:click="selectTab('comments')"
                     class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300
-                   @if($tab === 'comments') border-primary-500  text-primary-500 @else text-gray-700 @endif">
+                   @if($tab === 'comments') inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500 @else text-gray-700 @endif">
                 {{ __('Comments') }}
             </button>
             <button wire:click="selectTab('activities')"
@@ -238,7 +238,7 @@
                               
                         @endforeach
                         <tr class="bg-gray-50 dark:bg-gray-300">
-                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-500 sm:pl-6 text-right" colspan="6">Subtotal gross pay</th>
+                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-500 sm:pl-6 text-right" colspan="6">Total</th>
                         <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-500 sm:pl-6 text-left " nowrap=""> ${{ number_format($this->getTotalAmount(), 2) }}</th>
                         </tr>
                     </tbody>

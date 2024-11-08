@@ -43,7 +43,9 @@ class AdminPanelProvider extends PanelProvider
             ->profile()
             ->spa()
             ->databaseNotifications()
+            
             ->plugins([
+                \TomatoPHP\FilamentPWA\FilamentPWAPlugin::make(),
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 BreezyCore::make()
                     ->myProfile(
