@@ -230,13 +230,19 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 Forms\Components\TextInput::make('deliver_to'),
                             ])->columnSpan(1),
                             RichEditor::make('notes')
+                            ->fileAttachmentsDisk('s3')
+                            ->fileAttachmentsDirectory('/requisitions/attachments')
+                            ->fileAttachmentsVisibility('private')
                             ->toolbarButtons([
                                 'bold',
                                 'bulletList',
                                 'heading',
                                 'italic',
                                 'redo',
-                                'undo',])
+                                'undo',
+                                'attachFiles'])
+                               
+                               
                                 
                         ]),
                         

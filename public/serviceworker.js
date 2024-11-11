@@ -1,10 +1,10 @@
-var staticCacheName = "pwa-v" + new Date().getTime();
-var filesToCache = [
-    '/offline',
-    '/css/app.css',
-    '/js/app.js',
-"
-];
+// var staticCacheName = "pwa-v" + new Date().getTime();
+// var filesToCache = [
+//     '/offline',
+//     '/css/app.css',
+//     '/js/app.js',
+
+// ];
 
 // Cache on install
 self.addEventListener("install", event => {
