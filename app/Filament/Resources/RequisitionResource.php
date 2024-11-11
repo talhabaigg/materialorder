@@ -215,7 +215,12 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 
                                 
                                
-                                ->columnspan(4)
+                                ->columnSpan([
+                                    'default' => 1,
+                                    'sm' => 2,
+                                    'xl' => 4,
+                                    
+                                ])
                                 ->searchable()
                                 ->required()
                                 ->disabled(function (callable $get) {
@@ -284,7 +289,11 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                
                                 ->searchable()
                                 ->required()
-                                ->columnspan(3)
+                                ->columnSpan([
+                                    'default' => 1,
+                                    'xl' => 2,
+                                    '2xl' => 3,
+                                ])
                                 ->disabled(function (callable $get) {
                                     // Disable the select field if supplier_id is null
                                     return is_null($get('../../supplier_name'));    
@@ -335,17 +344,27 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ->default(1)
                                 ->required()
                                 ->placeholder('Enter quantity')
-                                ->columnspan(2)
+                                ->columnSpan([
+                                    'default' => 1,
+                                    'xl' => 1,
+                         
+                                ])
+                             
                                 ->numeric(),
-                           TextInput::make('cost')->numeric()->visible(fn (): bool => Auth::check() && Auth::user()->hasRole('super_admin')),
-                           TextInput::make('price_list')->visible(fn (): bool => Auth::check() && Auth::user()->role('super_admin'))
+                           TextInput::make('cost')->numeric()->visible(fn (): bool => Auth::check() && Auth::user()->hasRole('super_admin'))->columnspan(1),
+                           TextInput::make('price_list')->visible(fn (): bool => Auth::check() && Auth::user()->role('super_admin'))->columnspan(1)
                                 // MoneyInput::make('cost')->decimals(2)->step(0.0001)->columnspan(2)->default(0.0000)->currency('AUD'),
                             
                         ])
                         ->addActionLabel('Add item')
                         
                         ->minItems(1) // Require at least one line item
-                        ->columns(11), // 4-column layout for the repeater
+                        ->columns([
+                            'default' => 1,
+                            'sm' => 5,
+                            'xl' => 10,
+                            
+                        ]), // 4-column layout for the repeater
                         
                             ]),
                
