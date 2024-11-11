@@ -92,5 +92,9 @@ class Requisition extends Model
     public function comments() {
         return $this->hasMany(RequisitionComment::class, 'requisition_id');
     }
+    public function attachments()
+    {
+        return $this->hasMany(RequisitionAttachment::class);
+    }
     
 }

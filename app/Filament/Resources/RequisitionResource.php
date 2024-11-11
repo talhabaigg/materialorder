@@ -351,8 +351,8 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ])
                              
                                 ->numeric(),
-                           TextInput::make('cost')->numeric()->visible(fn (): bool => Auth::check() && Auth::user()->hasRole('super_admin'))->columnspan(1),
-                           TextInput::make('price_list')->visible(fn (): bool => Auth::check() && Auth::user()->role('super_admin'))->columnspan(1)
+                           TextInput::make('cost')->numeric()->columnspan(1),
+                           TextInput::make('price_list')->columnspan(1)
                                 // MoneyInput::make('cost')->decimals(2)->step(0.0001)->columnspan(2)->default(0.0000)->currency('AUD'),
                             
                         ])
