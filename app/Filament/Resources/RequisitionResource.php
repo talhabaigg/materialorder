@@ -424,7 +424,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                     RichEditor::make('notes')
                                     ->fileAttachmentsDisk('s3')
                                     ->fileAttachmentsDirectory('/requisitions/attachments')
-                                    ->fileAttachmentsVisibility('public')
+                                    
                                     ->toolbarButtons([
                                         'bold',
                                         'bulletList',
