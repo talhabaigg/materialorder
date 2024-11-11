@@ -23,12 +23,14 @@ use Filament\Actions\ImportAction;
 use Illuminate\Support\HtmlString;
 use App\Models\RequisitionLineItem;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Tabs;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Wizard;
 use Filament\Support\Enums\ActionSize;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
@@ -59,11 +61,11 @@ use Filament\Tables\Columns\CheckboxColumn;
 use Filament\Tables\Actions\ReplicateAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\MarkdownEditor;
-use Filament\AvatarProviders\UiAvatarsProvider;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 // use App\Filament\Resources\RequisitionResource\Widgets\StatsOverview;
-use App\Filament\Resources\RequisitionResource\Pages;
+use Filament\AvatarProviders\UiAvatarsProvider;
 
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\RequisitionResource\Pages;
 use Filament\AvatarProviders\Contracts\AvatarProvider;
 use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
@@ -136,128 +138,30 @@ class RequisitionResource extends Resource implements HasShieldPermissions
         
         
         ->schema([
-           
-           
-
-       
-            Forms\Components\Card::make('Delivery details')
-           
-                ->schema([
-                    
-                    Grid::make(3) // Organize inputs in 3 columns
-                        ->schema([
-                            
-                            DatePicker::make('date_required')
-                                ->label('Date Required')
-                                ->required()
-                                
-                                ->columnSpan(1),
-                                // ->minDate(now()->addDay(0)),
-                            TimePicker::make('pickup_time')->default('10:00')->withoutSeconds()->label('Delivery Time'),
-                           
-                            Select::make('project_id')
-                                ->label('Project')
-                                ->options(
-                                    Project::query()
-                                        ->pluck('name', 'id') // Correct order: 'name' as the value, 'id' as the key
-                                        ->toArray()
-                                )->searchable()
-                                ->reactive()
-                                ->afterStateUpdated(function (callable $set, callable $get, $state) {
-                                    // Find the selected project by ID
-                                    $project = Project::find($state);
-                            
-                                    // If a project is found, set the 'deliver_to' and 'delivery_contact' fields
-                                    if ($project) {
-                                        
-                                        $set('deliver_to', $project->deliver_to); // Set the 'deliver_to' field
-                                        $set('delivery_contact', $project->delivery_contact); // Set the 'delivery_contact' field
-                                        $set('coordinates', $project->coordinates); 
-                                        $set('site_reference', $project->site_reference); 
-                                        $set('pickup_by', $project->pickup_by); 
-                                        $set('requested_by', $project->requested_by); 
-                                        $set('notes', $project->notes); 
-                                    
-                                    } else {
-                                        // If no project is selected, clear the fields (optional)
-                                        $set('deliver_to', null);
-                                        $set('delivery_contact', null);
-                                    }
-                                }),
-                            // Select::make('project_id')
-                            //     ->label('Project')
-                            //     ->required()
-                            //     ->columnSpan(1),
-
-                                Select::make('supplier_name')
-                                ->label('Supplier')
-                                ->required()
-                                ->columnSpan(1)
-                                ->options(
-                                    MaterialItem::query()
-                                        ->select('supplier_name')
-                                        ->distinct()
-                                        ->pluck('supplier_name', 'supplier_name')
-                                        ->toArray()
-                                )
-                                ->searchable() // Add searchable to enhance UX,
-                                ->reactive()
-                                ->afterStateUpdated(function (callable $set) {
-                                   $set('lineItems.*.item_code', null); // Clear item_code in line items if needed
-                                   $set('lineItems.*.description', null); // Clear description in line items if needed
-                                }),
-                                TextInput::make('site_reference')
-                                ->label('Site Reference')
-                                ->required()
-                                ->columnSpan(1),
-                                
-                            TextInput::make('delivery_contact')
-                                ->label('Delivery Contact')
-                                ->required()
-                                ->columnSpan(1),
-
-                        ]),
-                    
-                    
-                    Grid::make(2)
-                        ->schema([
-                            Grid::make(1)->schema([
-                                TextInput::make('pickup_by')
-                                ->label('Pickup By')
-                                ->required()
-                                ->columnSpan(1),
-                                TextInput::make('requested_by'),  
-                                Forms\Components\TextInput::make('deliver_to'),
-                            ])->columnSpan(1),
-                            RichEditor::make('notes')
-                            ->fileAttachmentsDisk('s3')
-                            ->fileAttachmentsDirectory('/requisitions/attachments')
-                            ->fileAttachmentsVisibility('private')
-                            ->toolbarButtons([
-                                'bold',
-                                'bulletList',
-                                'heading',
-                                'italic',
-                                'redo',
-                                'undo',
-                                'attachFiles'])
-                               
-                               
-                                
-                        ]),
-                        
-                        
-                                    
-
-                ])->collapsible()
-                ,
+            Wizard::make([
                 
-                
-            // Line Items Repeater in a separate Card
-            Forms\Components\Card::make('Material')
-            
-                ->schema([
-                    Repeater::make('lineItems')
+                Wizard\Step::make('Add Items')
+                    ->schema([
+                        Select::make('supplier_name')
+                        ->label('Supplier')
+                        ->required()
+                        ->columnSpan(1)
+                        ->options(
+                            MaterialItem::query()
+                                ->select('supplier_name')
+                                ->distinct()
+                                ->pluck('supplier_name', 'supplier_name')
+                                ->toArray()
+                        )
+                        ->searchable() // Add searchable to enhance UX,
+                        ->reactive()
+                        ->afterStateUpdated(function (callable $set) {
+                           $set('lineItems.*.item_code', null); // Clear item_code in line items if needed
+                           $set('lineItems.*.description', null); // Clear description in line items if needed
+                           $set('lineItems.*.cost', null); // Clear description in line items if needed
+                           $set('lineItems.*.price_list', null); // Clear description in line items if needed
+                        }),
+                        Repeater::make('lineItems')
                         ->relationship()
                         ->label('Material Items')
                         ->deletable(function (callable $get) {
@@ -443,9 +347,109 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                         ->minItems(1) // Require at least one line item
                         ->columns(11), // 4-column layout for the repeater
                         
-                ])
+                            ]),
                
-                ->collapsible(),
+                
+                            Wizard\Step::make('Delivery Details')
+                            ->schema([
+                                Grid::make(2) // Organize inputs in 3 columns
+                                ->schema([
+                                    
+                                    DatePicker::make('date_required')
+                                        ->label('Date Required')
+                                        ->required()
+                                        
+                                        ->columnSpan(1),
+                                        // ->minDate(now()->addDay(0)),
+                                    TimePicker::make('pickup_time')->default('10:00')->withoutSeconds()->label('Delivery Time'),
+                                   
+                                    Select::make('project_id')
+                                        ->label('Project')
+                                        ->options(
+                                            Project::query()
+                                                ->pluck('name', 'id') // Correct order: 'name' as the value, 'id' as the key
+                                                ->toArray()
+                                        )->searchable()
+                                        ->reactive()
+                                        ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                                            // Find the selected project by ID
+                                            $project = Project::find($state);
+                                    
+                                            // If a project is found, set the 'deliver_to' and 'delivery_contact' fields
+                                            if ($project) {
+                                                
+                                                $set('deliver_to', $project->deliver_to); // Set the 'deliver_to' field
+                                                $set('delivery_contact', $project->delivery_contact); // Set the 'delivery_contact' field
+                                                $set('coordinates', $project->coordinates); 
+                                                $set('site_reference', $project->site_reference); 
+                                                $set('pickup_by', $project->pickup_by); 
+                                                $set('requested_by', $project->requested_by); 
+                                                $set('notes', $project->notes); 
+                                            
+                                            } else {
+                                                // If no project is selected, clear the fields (optional)
+                                                $set('deliver_to', null);
+                                                $set('delivery_contact', null);
+                                            }
+                                        }),
+                                    // Select::make('project_id')
+                                    //     ->label('Project')
+                                    //     ->required()
+                                    //     ->columnSpan(1),
+        
+                                       
+                                        TextInput::make('site_reference')
+                                        ->label('Site Reference')
+                                        ->required()
+                                        ->columnSpan(1),
+                                        
+                                    TextInput::make('delivery_contact')
+                                        ->label('Delivery Contact')
+                                        ->required()
+                                        ->columnSpan(1),
+        
+                                ]),
+                            
+                            
+                            Grid::make(2)
+                                ->schema([
+                                    Grid::make(1)->schema([
+                                        TextInput::make('pickup_by')
+                                        ->label('Pickup By')
+                                        ->required()
+                                        ->columnSpan(1),
+                                        TextInput::make('requested_by'),  
+                                        Forms\Components\TextInput::make('deliver_to'),
+                                    ])->columnSpan(1),
+                                    RichEditor::make('notes')
+                                    ->fileAttachmentsDisk('s3')
+                                    ->fileAttachmentsDirectory('/requisitions/attachments')
+                                    ->fileAttachmentsVisibility('public')
+                                    ->toolbarButtons([
+                                        'bold',
+                                        'bulletList',
+                                        'heading',
+                                        'italic',
+                                        'redo',
+                                        'undo',
+                                        'attachFiles'])
+                                       
+                                       
+                                        
+                                ]),
+                            ]),
+                Wizard\Step::make('Attachments(optional)')
+                    ->schema([
+                        // ...
+                    ]),
+                ])->columnSpanFull(),
+           
+       
+            
+                
+                
+            // Line Items Repeater in a separate Card
+           
                 
         ]);
     }
