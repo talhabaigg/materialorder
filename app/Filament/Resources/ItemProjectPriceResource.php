@@ -21,7 +21,7 @@ class ItemProjectPriceResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
     protected static ?string $navigationGroup = 'Admin';
-
+    protected static bool $shouldRegisterNavigation = false;
     public static function form(Form $form): Form
     {
         return $form

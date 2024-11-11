@@ -21,7 +21,7 @@ use Tapp\FilamentGoogleAutocomplete\Forms\Components\GoogleAutocomplete;
 class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
-    protected static ?string $navigationLabel = 'Project Preferences';
+    protected static ?string $navigationLabel = 'Manage Projects';
     protected static ?string $navigationGroup = 'Admin';
 
     protected static ?string $navigationIcon = 'heroicon-o-building-library';

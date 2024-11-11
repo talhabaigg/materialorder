@@ -19,7 +19,7 @@ use App\Filament\Resources\PriceListResource\RelationManagers\ProjectpriceRelati
 class PriceListResource extends Resource
 {
     protected static ?string $model = PriceList::class;
-
+    protected static ?string $navigationLabel = 'Manage Project Prices';
     protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
     protected static ?string $navigationGroup = 'Admin';
 

@@ -14,4 +14,9 @@ class ItemBase extends Model
         'effective_from',
         'effective_to'
     ];
+
+    public function price()
+    {
+        return $this->hasOne(ItemBasePrice::class);
+    }
 }

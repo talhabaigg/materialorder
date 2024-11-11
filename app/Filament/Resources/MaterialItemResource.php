@@ -40,7 +40,7 @@ class MaterialItemResource extends Resource
     
     protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
     protected static ?string $navigationGroup = 'Admin';
-
+    protected static ?string $navigationLabel = 'Manage Material Items';
     public static function form(Form $form): Form
     {
         return $form

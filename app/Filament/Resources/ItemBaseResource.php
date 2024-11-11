@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ItemBaseResource\Pages;
 use App\Filament\Resources\ItemBaseResource\RelationManagers;
+use App\Filament\Resources\ItemBaseResource\RelationManagers\PriceRelationManager;
 use App\Models\ItemBase;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -18,7 +19,7 @@ class ItemBaseResource extends Resource
     protected static ?string $model = ItemBase::class;
 
     
-    protected static ?string $navigationLabel = 'Manage Base List';
+    protected static ?string $navigationLabel = 'Manage Base Prices';
     protected static ?string $navigationGroup = 'Admin';
 
     protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
@@ -68,7 +69,7 @@ class ItemBaseResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+           PriceRelationManager::class,
         ];
     }
 
