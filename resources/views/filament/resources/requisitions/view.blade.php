@@ -160,6 +160,11 @@
                     @if($tab === 'items') inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500 @else text-gray-700 @endif">
                 {{ __('Items') }}
             </button>
+            <button wire:click="selectTab('attachments')"
+            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300
+            @if($tab === 'attachments') inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500 @else text-gray-700 @endif">
+        {{ __('Attachments') }}
+    </button>
             
         </div>
         @if ($tab === 'comments')
@@ -206,6 +211,7 @@
                     @endif
                 </div>
             @endif
+          
             @if($tab === 'items')
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg ">
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
@@ -249,7 +255,10 @@
             </div>
           
 @endif
-
+@if($tab === 'attachments')
+    @livewire('attachment', ['record' => $record])
+    @livewire('attachmentlist', ['record' => $record])
+@endif
     </div>
     </div>
 </x-filament::page>

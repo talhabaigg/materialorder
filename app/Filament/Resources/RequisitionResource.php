@@ -72,6 +72,7 @@ use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\RequisitionResource\RelationManagers;
 use Filament\Notifications\Actions\Action as NotificationAction;
 use Tapp\FilamentGoogleAutocomplete\Forms\Components\GoogleAutocomplete; 
+use App\Filament\Resources\RequisitionResource\RelationManagers\AttachmentsRelationManager;
 
 
 class RequisitionResource extends Resource implements HasShieldPermissions
@@ -459,7 +460,14 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                             ]),
                 Wizard\Step::make('Attachments(optional)')
                     ->schema([
-                        // ...
+                        Repeater::make('attachments')
+                        ->relationship()
+                        ->label('attachments')
+                        ->deletable()
+                        ->reorderable(true)
+                        ->schema([
+                        FileUpload::make('file_path')->disk('s3')->preserveFilenames()->directory('requisitions/attachments')->label('Attachment')->visibility('publico'),
+                        ]),
                     ]),
                 ])->columnSpanFull(),
            
@@ -782,7 +790,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
     public static function getRelations(): array
     {
         return [
-            //
+            // AttachmentsRelationManager::class,
         ];
     }
 
