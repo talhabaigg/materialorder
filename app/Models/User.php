@@ -7,6 +7,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Filament\Panel\Concerns\HasAvatars;
 use Illuminate\Notifications\Notifiable;
+use TomatoPHP\FilamentFcm\Traits\InteractsWithFCM;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\AvatarProviders\UiAvatarsProvider;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -15,7 +16,7 @@ use Jeffgreco13\FilamentBreezy\Traits\TwoFactorAuthenticatable;
 
 class User extends Authenticatable implements FilamentUser
 {
-    use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable, HasRoles, HasAvatars;
+    use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable, HasRoles, HasAvatars, InteractsWithFCM;
 
     /**
      * The attributes that are mass assignable.
