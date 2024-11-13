@@ -111,13 +111,13 @@ class RequisitionResource extends Resource implements HasShieldPermissions
         $user = Auth::user();
 
         // Check if the user is not a Superadmin
-        if (!$user->can('view_all')) {
+        if ($user->can('view_all')) {
             // Limit to records where 'created_by' matches the user's ID
-            return parent::getEloquentQuery()->where('created_by', $user->id);
+            return parent::getEloquentQuery();
         }
 
         // If Superadmin, show all records without filtering
-        return parent::getEloquentQuery();
+        return parent::getEloquentQuery()->where('created_by', $user->id);
     }
     public static function getNavigationBadge(): ?string
     {
