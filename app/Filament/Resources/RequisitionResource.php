@@ -111,7 +111,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
         $user = Auth::user();
 
         // Check if the user is not a Superadmin
-        if ($user->can('view_all')) {
+        if ($user->hasRole('super_admin') || $user->hasRole('office_admin')) {
             // Limit to records where 'created_by' matches the user's ID
             return parent::getEloquentQuery();
         }
