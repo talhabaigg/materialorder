@@ -90,7 +90,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
             'process',
             'unprocess',
             'upload',
-            'view_all',
+            'view_all_requisitions',
         ];
     }
     public static function boot()
@@ -107,18 +107,19 @@ class RequisitionResource extends Resource implements HasShieldPermissions
     protected static ?int $navigationSort = 1;
 
     public static function getEloquentQuery(): Builder
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        // Check if the user is not a Superadmin
-        if ($user->hasRole('super_admin') || $user->hasRole('office_admin')) {
-            // Limit to records where 'created_by' matches the user's ID
-            return parent::getEloquentQuery();
-        }
-
-        // If Superadmin, show all records without filtering
-        return parent::getEloquentQuery()->where('created_by', $user->id);
+     // If the user has either the 'office_admin' or 'super_admin' role
+     if ($user->hasRole(['office_admin', 'super_admin'])) {
+        // Show all records without filtering
+        return parent::getEloquentQuery();
     }
+
+
+    // If the user is a Superadmin, show all records without filtering
+    return parent::getEloquentQuery();
+}
     public static function getNavigationBadge(): ?string
     {
         return number_format(static::getModel()::where('is_processed', false)->count());
