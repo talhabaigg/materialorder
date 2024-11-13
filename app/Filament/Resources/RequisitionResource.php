@@ -89,7 +89,8 @@ class RequisitionResource extends Resource implements HasShieldPermissions
             'delete_any',
             'process',
             'unprocess',
-            'upload'
+            'upload',
+            'view_all',
         ];
     }
     public static function boot()
@@ -110,7 +111,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
         $user = Auth::user();
 
         // Check if the user is not a Superadmin
-        if (!$user->hasRole('super_admin')) {
+        if (!$user->can('view_all')) {
             // Limit to records where 'created_by' matches the user's ID
             return parent::getEloquentQuery()->where('created_by', $user->id);
         }
