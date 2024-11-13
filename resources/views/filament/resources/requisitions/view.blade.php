@@ -235,11 +235,11 @@
                                 <td class="px-4 py-2">{{ $item->item_code }}</td>
                                 <td class="px-4 py-2">{{ $item->description }}</td>
                                 <td class="px-4 py-2">{{ $item->qty }}</td>
-                                @if(auth()->user()->hasRole('super_admin'))
+                               
                                     <td class="px-4 py-2">${{ number_format((float) $item->cost, 2) }}</td>
                                     <td class="px-4 py-2">${{ number_format((float) $item->cost * $item->qty, 2) }}</td>
                                     <td class="px-4 py-2">{{ $item->price_list }}</td>
-                                @endif
+                          
                             </tr>
                               
                         @endforeach
