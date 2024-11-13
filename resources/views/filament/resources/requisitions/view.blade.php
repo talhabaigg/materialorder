@@ -40,7 +40,7 @@
                 <div>{{$record->deliver_to}}</div>
                 <span class="text-gray-500 dark:text-gray-300 text-sm font-medium">{{ __('Notes') }}</span>
                 
-                <div class="bg-gray-200 p-10 rounded-2xl"><div class=" text-gray-500 text-prose">{!! $record->notes !!}</div>
+                <div class="bg-gray-200 p-10 rounded-2xl"><div class=" text-gray-500 text-prose break-words">{!! $record->notes !!}</div>
                     </div>
             </div>
         
