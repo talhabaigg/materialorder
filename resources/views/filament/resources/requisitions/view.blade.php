@@ -221,11 +221,11 @@
                             <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Item Code</th>
                             <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Description</th>
                             <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Qty</th>
-                            @if(auth()->user()->hasRole('super_admin'))
+                           
                                 <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Cost</th>
                                 <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Total</th>
                                 <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Price Source</th>
-                            @endif
+                        
                         </tr>
                     </thead>
                     <tbody class="divide-y">
