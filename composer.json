@@ -35,7 +35,8 @@
     "spatie/laravel-pdf": "^1.5",
     "spatie/laravel-permission": "^6.9",
     "tapp/filament-google-autocomplete-field": "^1.0",
-    "tomatophp/filament-fcm": "*",
+    "tomatophp/filament-fcm": "^1.0",
+    "tomatophp/filament-pwa": "^1.0",
     "z3d0x/filament-logger": "^0.7.0"
   },
   "require-dev": {
