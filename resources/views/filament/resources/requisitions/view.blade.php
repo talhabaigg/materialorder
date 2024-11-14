@@ -265,12 +265,15 @@
 
 @push('scripts')
     <script>
-        
-
-        document.getElementById('commentForm').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter' && !e.shiftKey) { // Check for Enter key without Shift
-            e.preventDefault(); // Prevent the default new line in textarea
-            this.submit(); // Submit the form
+      document.addEventListener('DOMContentLoaded', function () {
+        const commentForm = document.getElementById('commentForm');
+        if (commentForm) {
+            commentForm.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) { // Check for Enter key without Shift
+                    e.preventDefault(); // Prevent the default new line in textarea
+                    this.submit(); // Submit the form
+                }
+            });
         }
     });
     </script>
