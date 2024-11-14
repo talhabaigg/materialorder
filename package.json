@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build && cp public/build/assets/app*.js public/app.js && cp public/build/assets/app*.css public/app.css"
   },
   "devDependencies": {
     "@ryangjchandler/alpine-tooltip": "^2.0.0",
