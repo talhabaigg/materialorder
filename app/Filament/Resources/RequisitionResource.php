@@ -73,7 +73,7 @@ use App\Filament\Resources\RequisitionResource\RelationManagers;
 use Filament\Notifications\Actions\Action as NotificationAction;
 use Tapp\FilamentGoogleAutocomplete\Forms\Components\GoogleAutocomplete; 
 use App\Filament\Resources\RequisitionResource\RelationManagers\AttachmentsRelationManager;
-
+use App\Notifications\RequisitionProcessedNotification;
 
 class RequisitionResource extends Resource implements HasShieldPermissions
 {
@@ -750,7 +750,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                         } else {
                                             $timeMessage = 'On ' . $processedAt->format('jS F, Y') . ' at ' . $processedAt->format('g A');
                                         }
-                                    
+                                        $record->creator->notify(new RequisitionProcessedNotification($record));
                                         $record->creator->notify(
                                             Notification::make()
                                                 ->title('Requisition Processed: ' . $record->requisition_number) // Title with requisition number
