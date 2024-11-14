@@ -19,5 +19,8 @@ class Project extends Model
         'deliver_to', 
         'notes',
     ];
-
+    public function priceList()
+    {
+        return $this->hasOne(PriceList::class, 'site_reference', 'site_reference');
+    }
 }

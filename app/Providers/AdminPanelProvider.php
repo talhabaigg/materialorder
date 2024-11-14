@@ -43,7 +43,9 @@ class AdminPanelProvider extends PanelProvider
             ->profile()
             ->spa()
             ->databaseNotifications()
+            
             ->plugins([
+                \TomatoPHP\FilamentPWA\FilamentPWAPlugin::make(),
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 BreezyCore::make()
                     ->myProfile(
@@ -78,7 +80,7 @@ class AdminPanelProvider extends PanelProvider
                 'Admin',
                 'Settings',
             ])
-            ->maxContentWidth(MaxWidth::ScreenTwoExtraLarge)
+            ->maxContentWidth(MaxWidth::Full)
             ->colors([
                 'primary' => Color::Blue,
             ])

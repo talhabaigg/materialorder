@@ -56,7 +56,8 @@
                 <th>Item Code</th>
                 <th>Description</th>
                 <th>Quantity</th>
-                <th>Cost</th>
+                <th>Cost (ea)</th>
+                <th>Total</th>
             </tr>
         </thead>
         <tbody>
@@ -65,7 +66,10 @@
                 <td>{{ $line['item_code'] }}</td>
                 <td>{{ $line['description'] }}</td>
                 <td>{{ $line['qty'] }}</td>
-                <td>{{ $line['cost'] ?? 'NA' }}</td>
+                <td>
+                   {{$line['cost']}}
+                </td>
+                <td>{{$line['cost'] * $line['qty']}}</td>
             </tr>
             @endforeach
         </tbody>

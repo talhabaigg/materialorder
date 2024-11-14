@@ -12,6 +12,7 @@
     "php": "^8.2",
     "awcodes/filament-curator": "^3.6",
     "awcodes/filament-gravatar": "^2.0",
+    "aws/aws-sdk-php": "^3.325",
     "barryvdh/laravel-dompdf": "^3.0",
     "bezhansalleh/filament-exceptions": "^2.0",
     "bezhansalleh/filament-shield": "^3.2",
@@ -24,6 +25,7 @@
     "laravel/sanctum": "^4.0",
     "laravel/tinker": "^2.9",
     "league/commonmark": "^2.5",
+    "league/flysystem-aws-s3-v3": "^3.29",
     "livewire/livewire": "^3.3",
     "maatwebsite/excel": "^3.1",
     "pboivin/filament-peek": "^2.2",
@@ -33,6 +35,8 @@
     "spatie/laravel-pdf": "^1.5",
     "spatie/laravel-permission": "^6.9",
     "tapp/filament-google-autocomplete-field": "^1.0",
+    "tomatophp/filament-fcm": "^1.0",
+    "tomatophp/filament-pwa": "^1.0",
     "z3d0x/filament-logger": "^0.7.0"
   },
   "require-dev": {
@@ -82,5 +86,11 @@
     }
   },
   "minimum-stability": "stable",
+  "repositories": [
+    {
+        "type": "composer",
+        "url": "https://satis.spatie.be"
+    }
+],
   "prefer-stable": true
 }

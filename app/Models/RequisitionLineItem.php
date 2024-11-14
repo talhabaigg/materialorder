@@ -15,10 +15,16 @@ class RequisitionLineItem extends Model
         'description',
         'qty',
         'cost',
+        'price_list',
     ];
 
     public function requisition()
     {
         return $this->belongsTo(Requisition::class);
     }
+
+    protected $casts = [
+        'cost' => 'float',
+    ];
+        
 }

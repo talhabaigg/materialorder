@@ -4,10 +4,13 @@ const colors = require('tailwindcss/colors')
 
 module.exports = {
   content: [
-    './app/**/*.php',
-    './config/**/*.php',
-    './resources/**/*.{php,js}',
-    './storage/framework/views/*.php',
+    './resources/**/*.blade.php',
+        './app/Filament/**/*.php',
+        './app/Http/Livewire/**/*.php',
+        './vendor/filament/**/*.blade.php',
+        './node_modules/flowbite/**/*.js'
+    
+    
   ],
   theme: {
     extend: {
@@ -16,5 +19,8 @@ module.exports = {
       },
     },
   },
-  plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
+  plugins: [require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+    require('flowbite/plugin')
+  ],
 }
