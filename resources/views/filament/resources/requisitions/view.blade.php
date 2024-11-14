@@ -213,46 +213,8 @@
             @endif
           
             @if($tab === 'items')
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg ">
-                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-300 dark:text-gray-400">
-                        <tr>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Supplier Name</th>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Item Code</th>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Description</th>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Qty</th>
-                           
-                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Cost</th>
-                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Total</th>
-                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Price Source</th>
-                        
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y">
-                        @foreach($record->lineItems as $item)
-                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                <td class="px-4 py-2">{{ $record->supplier_name }}</td>
-                                <td class="px-4 py-2">{{ $item->item_code }}</td>
-                                <td class="px-4 py-2">{{ $item->description }}</td>
-                                <td class="px-4 py-2">{{ $item->qty }}</td>
-                               
-                                    <td class="px-4 py-2">${{ number_format((float) $item->cost, 2) }}</td>
-                                    <td class="px-4 py-2">${{ number_format((float) $item->cost * $item->qty, 2) }}</td>
-                                    <td class="px-4 py-2">{{ $item->price_list }}</td>
-                          
-                            </tr>
-                              
-                        @endforeach
-                        <tr class="bg-gray-50 dark:bg-gray-300">
-                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-500 sm:pl-6 text-right" colspan="6">Total</th>
-                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-500 sm:pl-6 text-left " nowrap=""> ${{ number_format($this->getTotalAmount(), 2) }}</th>
-                        </tr>
-                    </tbody>
-                </table>
-
-                
-  
-            </div>
+            @livewire('requisition-items-table', ['record' => $record])
+           
           
 @endif
 @if($tab === 'attachments')
