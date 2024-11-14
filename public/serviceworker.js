@@ -11,9 +11,7 @@ this.skipWaiting();
 event.waitUntil(
     caches.open(staticCacheName).then(cache => {
     return cache.addAll(filesToCache)
-        .catch(error => {
-        console.error('Error caching files:', error);
-        });
+        .catch(error => {});
     })
 );
 });
