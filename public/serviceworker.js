@@ -5,16 +5,32 @@ var filesToCache = [
     '/js/app.js',
 ];
 
-// Cache on install
 self.addEventListener("install", event => {
-this.skipWaiting();
-event.waitUntil(
-    caches.open(staticCacheName).then(cache => {
-    return cache.addAll(filesToCache)
-        .catch(error => {});
-    })
-);
-});
+    this.skipWaiting();
+    event.waitUntil(
+      caches.open(staticCacheName).then(cache => {
+        // Create an array of promises, each for adding a file
+        const cachePromises = filesToCache.map(file => {
+          return fetch(file).then(response => {
+            if (response.ok) {
+              return cache.add(file); // Only add to cache if response is successful
+            } else {
+              //console.error(`Failed to fetch ${file}: ${response.status}`);
+              return Promise.reject(`Failed to fetch ${file}`);
+            }
+          }).catch(error => {
+            //console.error('Error caching file:', file, error);
+            // Return a resolved promise for files that fail, so it doesn't block others
+            return Promise.resolve();
+          });
+        });
+  
+        // Wait until all files are processed
+        return Promise.all(cachePromises);
+      })
+    );
+  });
+  
 
 // Clear cache on activate
 self.addEventListener('activate', event => {
