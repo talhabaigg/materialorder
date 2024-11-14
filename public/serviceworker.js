@@ -10,13 +10,13 @@ self.addEventListener("install", event => {
 this.skipWaiting();
 event.waitUntil(
     caches.open(staticCacheName).then(cache => {
-    // Add each file to the cache individually
-    return Promise.all(
-        filesToCache.map(file => cache.add(file))
-    );
+    return cache.addAll(filesToCache)
+        .catch(error => {
+        console.error('Error caching files:', error);
+        });
     })
 );
-});  
+});
 
 // Clear cache on activate
 self.addEventListener('activate', event => {
