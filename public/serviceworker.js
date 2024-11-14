@@ -1,19 +1,22 @@
 var staticCacheName = "pwa-v" + new Date().getTime();
 var filesToCache = [
+    '/offline',
     '/css/app.css',
     '/js/app.js',
 ];
 
 // Cache on install
 self.addEventListener("install", event => {
-    this.skipWaiting();
-    event.waitUntil(
-        caches.open(staticCacheName)
-            .then(cache => {
-                return cache.addAll(filesToCache);
-            })
-    )
-});
+this.skipWaiting();
+event.waitUntil(
+    caches.open(staticCacheName).then(cache => {
+    // Add each file to the cache individually
+    return Promise.all(
+        filesToCache.map(file => cache.add(file))
+    );
+    })
+);
+});  
 
 // Clear cache on activate
 self.addEventListener('activate', event => {
