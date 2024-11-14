@@ -36,6 +36,7 @@ class RequisitionProcessedNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
+                    ->subject($this->requisition->requisition_number.'- Has Been Approved')
                     ->line('Your Requisition Has Been Approved')
                     ->greeting('Hello ' . $notifiable->name . ',')
                     ->line('Your requisition ' . $this->requisition->requisition_number . ' has been processed.')
