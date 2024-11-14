@@ -38,8 +38,8 @@ class RequisitionProcessedNotification extends Notification
         return (new MailMessage)
                     ->line('Your Requisition Has Been Approved')
                     ->greeting('Hello ' . $notifiable->name . ',')
-                    ->line('Your requisition with ID ' . $this->requisition->id . ' has been approved.')
-                    ->action('View Requisition', url('/requisitions/' . $this->requisition->id))
+                    ->line('Your requisition ' . $this->requisition->requisition_number . ' has been processed.')
+                    ->action('View Requisition', url('/admin/requisitions/' . $this->requisition->id.'/view'))
                     ->line('Thank you for using our application!');
     }
 
