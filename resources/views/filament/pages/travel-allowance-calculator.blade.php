@@ -43,13 +43,15 @@
                         {{ $employee }}
                     </th>
                     <td class="px-6 py-4">
-                        {{ $coordinates['home_to_project_distance'] }}
+                        {{ number_format($coordinates['home_to_project_distance'], 2) }} Km
                     </td>
                     <td class="px-6 py-4">
-                        {{ $coordinates['office_to_project_distance'] }}
+                        {{ number_format($coordinates['office_to_project_distance'], 2) }} Km
                     </td>
                     <td class="px-6 py-4">
-                        {{ $coordinates['zone'] }}
+                        <x-filament::badge>
+                            {{ $coordinates['zone'] }}
+                        </x-filament::badge> 
                     </td>
                     
                 </tr>
