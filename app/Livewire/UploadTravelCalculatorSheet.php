@@ -23,6 +23,7 @@ class UploadTravelCalculatorSheet extends Component implements HasForms
                     ->disk('s3')
                     ->directory('travel-calculator/uploaded-sheets')
                     ->visibility('public')
+                    ->preserveFilenames()
                     
                 // ...
             ])
@@ -38,7 +39,7 @@ class UploadTravelCalculatorSheet extends Component implements HasForms
         // Assuming the file is stored in the 'public' directory, adjust the path as necessary
        
         $storagePath = Storage::disk('s3')->url($filePath);
-        dd($storagePath);
+        // dd($storagePath);
         
         // Open the file and parse CSV
         if (($handle = fopen($storagePath, 'r')) !== FALSE) {
