@@ -20,10 +20,7 @@ class UploadTravelCalculatorSheet extends Component implements HasForms
             ->schema([
                 FileUpload::make('file_path')
                     ->label('Upload Travel Calculator Sheet')
-                    ->disk('s3')
-                    ->directory('travel-calculator/uploaded-sheets')
-                    ->visibility('public')
-                    ->preserveFilenames()
+                    
                     
                 // ...
             ])
@@ -37,19 +34,18 @@ class UploadTravelCalculatorSheet extends Component implements HasForms
     $filePath = $form['file_path'] ?? null;
     if ($filePath) {
         // Assuming the file is stored in the 'public' directory, adjust the path as necessary
-       
-        $storagePath = Storage::disk('s3')->url($filePath);
-        // dd($storagePath);
         
-        if (Storage::disk('s3')->exists($storagePath)) {
-            // Open the file as a stream from S3
-            $fileStream = Storage::disk('s3')->readStream($storagePath);
+        $storagePath = storage_path($filePath);
+        dd($storagePath);
         
-            // Open the file stream for reading
-                $employeeCoordinates = [];
-                fgetcsv($fileStream);
+        // Open the file and parse CSV
+        if (($handle = fopen($storagePath, 'r')) !== FALSE) {
+            // Read the CSV row by row
+            fgetcsv($handle); // Skip the header
+            $employeeCoordinates = [];
+            
             // Iterate through the CSV rows
-            while (($data = fgetcsv($fileStream, 1000, ',')) !== FALSE) {
+            while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
                 $employee_code = $data[0];  // employee_code
                 $home_address = $data[1];   // home_address
                 $project_address = $data[2]; // project_address
