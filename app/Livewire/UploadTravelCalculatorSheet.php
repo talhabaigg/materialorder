@@ -20,7 +20,9 @@ class UploadTravelCalculatorSheet extends Component implements HasForms
             ->schema([
                 FileUpload::make('file_path')
                     ->label('Upload Travel Calculator Sheet')
-                    
+                    ->disk('s3')
+                    ->directory('travel-calculator/uploaded-sheets')
+                    ->visibility('public')
                     
                 // ...
             ])
