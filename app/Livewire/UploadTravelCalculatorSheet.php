@@ -41,14 +41,15 @@ class UploadTravelCalculatorSheet extends Component implements HasForms
         $storagePath = Storage::disk('s3')->url($filePath);
         // dd($storagePath);
         
-        // Open the file and parse CSV
-        if (($handle = fopen($storagePath, 'r')) !== FALSE) {
-            // Read the CSV row by row
-            fgetcsv($handle); // Skip the header
-            $employeeCoordinates = [];
-            
+        if (Storage::disk('s3')->exists($storagePath)) {
+            // Open the file as a stream from S3
+            $fileStream = Storage::disk('s3')->readStream($storagePath);
+        
+            // Open the file stream for reading
+                $employeeCoordinates = [];
+                fgetcsv($fileStream);
             // Iterate through the CSV rows
-            while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
+            while (($data = fgetcsv($fileStream, 1000, ',')) !== FALSE) {
                 $employee_code = $data[0];  // employee_code
                 $home_address = $data[1];   // home_address
                 $project_address = $data[2]; // project_address
