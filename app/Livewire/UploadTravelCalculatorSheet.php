@@ -35,6 +35,7 @@ class UploadTravelCalculatorSheet extends Component implements HasForms
     if ($filePath) {
         // Assuming the file is stored in the 'public' directory, adjust the path as necessary
         $storagePath = Storage::path($filePath);
+        dd($storagePath);
         
         // Open the file and parse CSV
         if (($handle = fopen($storagePath, 'r')) !== FALSE) {
