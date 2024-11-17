@@ -118,7 +118,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
 
 
     // If the user is a Superadmin, show all records without filtering
-    return parent::getEloquentQuery();
+    return parent::getEloquentQuery()->where('created_by', $user->id);
 }
     public static function getNavigationBadge(): ?string
     {
@@ -599,6 +599,9 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                     ->url(fn (Requisition $record): string => route('requisition.pdf', ['requisition' => $record->id]))
                     ->openUrlInNewTab(),
                 Action::make('upload items')->tooltip('Upload csv to add material items')->icon('heroicon-o-arrow-up-tray')->iconButton()
+                    // ->visible(fn ($record): bool => $record->is_processed)
+                    ->disabled(fn ($record): bool => $record->is_processed)
+                    ->hidden(fn ($record) : bool => $record->is_processed)
                     ->form([
                         FileUpload::make('upload_csv')
                         ->required()
