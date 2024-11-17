@@ -47,7 +47,7 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 \TomatoPHP\FilamentPWA\FilamentPWAPlugin::make(),
                 \TomatoPHP\FilamentSettingsHub\FilamentSettingsHubPlugin::make()
-                ->allowShield(),
+                    ->allowShield(),
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 BreezyCore::make()
                     ->myProfile(

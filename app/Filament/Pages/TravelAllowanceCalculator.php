@@ -3,10 +3,12 @@
 namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TravelAllowanceCalculator extends Page
 {
+    use HasPageShield;
     protected static ?string $navigationIcon = 'heroicon-o-truck';
     public $employeeCoordinates = [];
     protected static ?string $navigationGroup = 'Admin';
