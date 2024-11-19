@@ -23,4 +23,9 @@ class Project extends Model
     {
         return $this->hasOne(PriceList::class, 'site_reference', 'site_reference');
     }
+
+    public function requisitions()
+    {
+        return $this->hasMany(Requisition::class);
+    }
 }

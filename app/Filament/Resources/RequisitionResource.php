@@ -145,6 +145,35 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                 
                 Wizard\Step::make('Add Items')
                     ->schema([
+                        Select::make('project_id')
+                                        ->label('Project')
+                                        ->options(
+                                            Project::query()
+                                                ->pluck('name', 'id') // Correct order: 'name' as the value, 'id' as the key
+                                                ->toArray()
+                                        )->searchable()
+                                        ->reactive()
+                                        ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                                            // Find the selected project by ID
+                                            $project = Project::find($state);
+                                    
+                                            // If a project is found, set the 'deliver_to' and 'delivery_contact' fields
+                                            if ($project) {
+                                                
+                                                $set('deliver_to', $project->deliver_to); // Set the 'deliver_to' field
+                                                $set('delivery_contact', $project->delivery_contact); // Set the 'delivery_contact' field
+                                                $set('coordinates', $project->coordinates); 
+                                                $set('site_reference', $project->site_reference); 
+                                                $set('pickup_by', $project->pickup_by); 
+                                                $set('requested_by', $project->requested_by); 
+                                                $set('notes', $project->notes); 
+                                            
+                                            } else {
+                                                // If no project is selected, clear the fields (optional)
+                                                $set('deliver_to', null);
+                                                $set('delivery_contact', null);
+                                            } 
+                                        }),
                         Select::make('supplier_name')
                         ->label('Supplier')
                         ->required()
@@ -156,6 +185,10 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ->pluck('supplier_name', 'supplier_name')
                                 ->toArray()
                         )
+                        ->disabled(function (callable $get) {
+                            // Disable the select field if supplier_id is null
+                            return is_null($get('project_id'));
+                        })
                         ->searchable() // Add searchable to enhance UX,
                         ->reactive()
                         ->afterStateUpdated(function (callable $set) {
@@ -234,13 +267,16 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                     // Fetch the associated description when item_code is selected
                                     
                                     $materialItem = MaterialItem::where('description', $state)->first();
+                                    
                                     if ($materialItem) {
                                         // Populate the description if the item exists
                                         $set('item_code', $materialItem->code); // Set the description directly
+                                        $list = ItemProjectPrice::where('item_code', $materialItem->code)->first()?->price_list;
 
                                         $projectprice = ItemProjectPrice::where('item_code', $materialItem->code)->first()?->price;
                                         if ($projectprice) {
                                             $set('cost', $projectprice);
+                                            $set('price_list', $list);
                                         } else {
                                             // Try to get the base price if project-specific price is not available
                                             $item_base_id = 1;
@@ -299,17 +335,19 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ])
                                 ->disabled(function (callable $get) {
                                     // Disable the select field if supplier_id is null
-                                    return is_null($get('../../supplier_name'));    
+                                    return is_null($get('../../supplier_name'));
+
                                 })
-                                ->afterStateUpdated(function ($state, callable $set) {
+                                ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                     // Fetch the associated description when item_code is selected
                                     $materialItem = MaterialItem::where('code', $state)->first();
+                                    $project = Project::find($get('../../project_id'));
                                     if ($materialItem) {
                                         // Populate the description if the item exists
                                         $set('description', $materialItem->description); // Set the description directly
                                         
                                         // Try to get project-specific price
-                                        $projectprice = ItemProjectPrice::where('item_code', $materialItem->code)->first()?->price;
+                                        $projectprice = ItemProjectPrice::where('item_code', $materialItem->code)->where('project_number', $project->site_reference)->first()?->price;
                                         $list = ItemProjectPrice::where('item_code', $materialItem->code)->first()?->price_list;
                                         if ($projectprice) {
                                             $set('cost', $projectprice);
