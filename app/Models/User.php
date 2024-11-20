@@ -26,6 +26,7 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
+        'fcm_token',
     ];
 
     /**
@@ -76,5 +77,10 @@ class User extends Authenticatable implements FilamentUser
     public function getAvatarUrl(): string
     {
         return (new UiAvatarsProvider())->get($this);
+    }
+
+    public function routeNotificationForFcm()
+    {
+        return $this->fcm_token;
     }
 }

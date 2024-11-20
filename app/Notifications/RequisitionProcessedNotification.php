@@ -7,6 +7,9 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use NotificationChannels\Fcm\FcmChannel;
+use NotificationChannels\Fcm\FcmMessage;
+use NotificationChannels\Fcm\Resources\Notification as FcmNotification;
 
 class RequisitionProcessedNotification extends Notification
 {
@@ -27,7 +30,7 @@ class RequisitionProcessedNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return [FcmChannel::class, 'mail']; 
     }
 
     /**
@@ -42,6 +45,21 @@ class RequisitionProcessedNotification extends Notification
                     ->line('Your requisition ' . $this->requisition->requisition_number . ' has been processed.')
                     ->action('View Requisition', url('/admin/requisitions/' . $this->requisition->id.'/view'))
                     ->line('Thank you for using our application!');
+    }
+
+    public function toFcm($notifiable): FcmMessage
+    {
+        return (new FcmMessage(notification: new FcmNotification(
+                title: $this->requisition->requisition_number.' - Approved',
+                body: 'Your requisition has been processed.',
+                // image: 'http://example.com/your-image-url.png' // Optional image
+            )))
+            ->data([
+                'requisition_id' => $this->requisition->id,
+                'is_approved' => true,
+                'url' => url('/admin/requisitions/' . $this->requisition->id . '/view'),
+            ]);
+            
     }
 
     /**

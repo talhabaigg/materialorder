@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FCMController;
 use App\Livewire\Home;
 use App\Models\Requisition;
 use App\Livewire\Post\Show as PostShow;
@@ -22,3 +23,9 @@ Route::post('/requisitions/{requisition}/upload-csv', [RequisitionController::cl
     
     Route::post('/requisitions/{id}/submit-comment', [RequisitionController::class, 'submitComment'])
     ->name('requisitions.submitComment');
+Route::get('/notifications', function () {
+    $firebaseConfig = config('firebase');
+    $vapidKey = config('vapid');
+        return view('home', compact('firebaseConfig', 'vapidKey'));
+    })->name('notifications');
+    Route::post('/save-fcm-token', [FCMController::class, 'saveToken'])->middleware('auth');
