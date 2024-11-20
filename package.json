@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "firebase": "^11.0.2",
-    "puppeteer": "^23.6.0",
+    "puppeteer": "^23.8.0",
     "tippy.js": "^6.3.7"
   }
 }
