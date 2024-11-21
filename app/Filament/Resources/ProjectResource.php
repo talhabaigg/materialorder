@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ProjectResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ProjectResource\RelationManagers;
+use App\Filament\Resources\ProjectResource\RelationManagers\FavouriteMaterialsRelationManager;
+use App\Filament\Resources\ProjectResource\RelationManagers\MaterialItemRelationManager;
 use Filament\Tables\Actions\ViewAction;
 use Tapp\FilamentGoogleAutocomplete\Forms\Components\GoogleAutocomplete;
 
@@ -89,7 +91,7 @@ class ProjectResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+           //
         ];
     }
 

@@ -30,6 +30,7 @@ class ProjectpriceRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('item_code')
+            
             ->columns([
                 Tables\Columns\TextColumn::make('item_code')->searchable(),
                 Tables\Columns\TextColumn::make('projectlist.name')->label('Project'),

@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Wizard;
+use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\ActionSize;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
@@ -60,20 +61,20 @@ use App\Notifications\RequisitionProcessed;
 use Filament\Tables\Columns\CheckboxColumn;
 use Filament\Tables\Actions\ReplicateAction;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\MarkdownEditor;
 // use App\Filament\Resources\RequisitionResource\Widgets\StatsOverview;
-use Filament\AvatarProviders\UiAvatarsProvider;
+use Filament\Forms\Components\MarkdownEditor;
 
+use Filament\AvatarProviders\UiAvatarsProvider;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\RequisitionResource\Pages;
 use Filament\AvatarProviders\Contracts\AvatarProvider;
+use App\Notifications\RequisitionProcessedNotification;
 use Pelmered\FilamentMoneyField\Forms\Components\MoneyInput;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\RequisitionResource\RelationManagers;
 use Filament\Notifications\Actions\Action as NotificationAction;
 use Tapp\FilamentGoogleAutocomplete\Forms\Components\GoogleAutocomplete; 
 use App\Filament\Resources\RequisitionResource\RelationManagers\AttachmentsRelationManager;
-use App\Notifications\RequisitionProcessedNotification;
 
 class RequisitionResource extends Resource implements HasShieldPermissions
 {
@@ -284,6 +285,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                             $baseprice = ItemBasePrice::where('material_item_code', $materialItem->code)->where('item_base_id', $item_base_id)->first()?->price;
                                             if ($baseprice) {
                                                 $set('cost', $baseprice);
+                                                $set('price_list', 'base_price');
                                             } elseif($baseprice===0) {
                                                 // Set a default cost if neither project-specific nor base price is found
                                                 $set('cost', 0.0000);
@@ -292,7 +294,9 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                             $set('cost', 911);
                                         }
                                     } else {
-                                        
+                                        $set('qty', 1);
+                                        $set('item_code', null);
+                                        $set('price_list', null);
                                         $set('cost', null);
                                     }
                                 }),
@@ -392,8 +396,8 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 ])
                              
                                 ->numeric(),
-                           TextInput::make('cost')->numeric()->columnspan(1),
-                           TextInput::make('price_list')->columnspan(1)
+                           TextInput::make('cost')->numeric()->columnspan(1)->readOnly(),
+                           TextInput::make('price_list')->columnspan(1)->readOnly(),
                                 // MoneyInput::make('cost')->decimals(2)->step(0.0001)->columnspan(2)->default(0.0000)->currency('AUD'),
                             
                         ])
@@ -423,35 +427,35 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                         // ->minDate(now()->addDay(0)),
                                     TimePicker::make('pickup_time')->default('10:00')->withoutSeconds()->label('Delivery Time'),
                                    
-                                    Select::make('project_id')
-                                        ->label('Project')
-                                        ->options(
-                                            Project::query()
-                                                ->pluck('name', 'id') // Correct order: 'name' as the value, 'id' as the key
-                                                ->toArray()
-                                        )->searchable()
-                                        ->reactive()
-                                        ->afterStateUpdated(function (callable $set, callable $get, $state) {
-                                            // Find the selected project by ID
-                                            $project = Project::find($state);
+                                    // Select::make('project_id')
+                                    //     ->label('Project')
+                                    //     ->options(
+                                    //         Project::query()
+                                    //             ->pluck('name', 'id') // Correct order: 'name' as the value, 'id' as the key
+                                    //             ->toArray()
+                                    //     )->searchable()
+                                    //     ->reactive()
+                                    //     ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                                    //         // Find the selected project by ID
+                                    //         $project = Project::find($state);
                                     
-                                            // If a project is found, set the 'deliver_to' and 'delivery_contact' fields
-                                            if ($project) {
+                                    //         // If a project is found, set the 'deliver_to' and 'delivery_contact' fields
+                                    //         if ($project) {
                                                 
-                                                $set('deliver_to', $project->deliver_to); // Set the 'deliver_to' field
-                                                $set('delivery_contact', $project->delivery_contact); // Set the 'delivery_contact' field
-                                                $set('coordinates', $project->coordinates); 
-                                                $set('site_reference', $project->site_reference); 
-                                                $set('pickup_by', $project->pickup_by); 
-                                                $set('requested_by', $project->requested_by); 
-                                                $set('notes', $project->notes); 
+                                    //             $set('deliver_to', $project->deliver_to); // Set the 'deliver_to' field
+                                    //             $set('delivery_contact', $project->delivery_contact); // Set the 'delivery_contact' field
+                                    //             $set('coordinates', $project->coordinates); 
+                                    //             $set('site_reference', $project->site_reference); 
+                                    //             $set('pickup_by', $project->pickup_by); 
+                                    //             $set('requested_by', $project->requested_by); 
+                                    //             $set('notes', $project->notes); 
                                             
-                                            } else {
-                                                // If no project is selected, clear the fields (optional)
-                                                $set('deliver_to', null);
-                                                $set('delivery_contact', null);
-                                            }
-                                        }),
+                                    //         } else {
+                                    //             // If no project is selected, clear the fields (optional)
+                                    //             $set('deliver_to', null);
+                                    //             $set('delivery_contact', null);
+                                    //         }
+                                    //     }),
                                     // Select::make('project_id')
                                     //     ->label('Project')
                                     //     ->required()
@@ -461,7 +465,8 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                         TextInput::make('site_reference')
                                         ->label('Site Reference')
                                         ->required()
-                                        ->columnSpan(1),
+                                        ->columnSpan(1)
+                                        ->readOnly(),
                                         
                                     TextInput::make('delivery_contact')
                                         ->label('Delivery Contact')
@@ -497,25 +502,20 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                        
                                         
                                 ]),
-                            ]),
-                Wizard\Step::make('Attachments(optional)')
-                    ->schema([
-                        Repeater::make('attachments')
+                                Repeater::make('attachments')
                         ->relationship()
-                        ->label('attachments')
+                        ->label('Attachments')
+                        
+                        ->addActionAlignment(Alignment::End)
                         ->deletable()
                         ->reorderable(true)
                         ->schema([
                         FileUpload::make('file_path')->disk('s3')->preserveFilenames()->directory('requisitions/attachments')->label('Attachment')->visibility('publico'),
-                        ]),
-                    ]),
+                        ])->defaultItems(0),
+                            ]),
+                
                 ])->columnSpanFull(),
-           
-       
-            
-                
-                
-            // Line Items Repeater in a separate Card
+         
            
                 
         ]);

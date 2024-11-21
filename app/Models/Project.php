@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\MaterialItem;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Project extends Model
 {
@@ -27,5 +28,10 @@ class Project extends Model
     public function requisitions()
     {
         return $this->hasMany(Requisition::class);
+    }
+
+    public function favouriteMaterials()
+    {
+        return $this->belongsToMany(MaterialItem::class, 'project_favourite_items');
     }
 }
