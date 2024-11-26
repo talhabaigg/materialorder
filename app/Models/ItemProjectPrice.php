@@ -7,7 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class ItemProjectPrice extends Model
 {
-    //
+    protected $fillable = [
+        'price_list',
+        'item_code',
+        'project_number',
+        'price',
+       
+    ];
 
     public function item() {
         return $this->hasOne(MaterialItem::class, 'code', 'item_code');

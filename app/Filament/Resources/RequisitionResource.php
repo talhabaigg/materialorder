@@ -135,6 +135,40 @@ class RequisitionResource extends Resource implements HasShieldPermissions
     //         RequisitionResource\Widgets\StatsOverview::class,
     //     ];
     // }
+    public static function getMaterialFromState($state, $project_id): ?object
+{
+
+    $material = MaterialItem::where('code', $state)
+        ->orWhere('description', $state)
+        ->first();
+    if ($material) {
+        $projectNumber = Project::find($project_id)->site_reference;
+        $itemProjectPrice = ItemProjectPrice::where('item_code', $material->code)->where('project_number', $projectNumber)->first(['price_list', 'price']);
+        if ($itemProjectPrice) {
+            return (object) [
+                'code' => $material->code,
+                'description' => $material->description,
+                'cost' => $itemProjectPrice->price,
+                'price_list' => $itemProjectPrice->price_list,
+            ];
+        } else {
+            $baseprice = ItemBasePrice::whereHas('base', function ($query) {
+                $query->where('effective_from', '<=', now()->today())
+                      ->where('effective_to', '>=', now()->today());
+            })->where('material_item_code', $material->code)->first()?->price;
+            return (object) [
+                'code' => $material->code,
+                'description' => $material->description,
+                'cost' => $baseprice ?? 0.0000,
+                'price_list' => $baseprice ? 'base_price' : null,
+            ];
+        }
+    }
+    return $material ? (object) [
+        'code' => $material->code,
+        'description' => $material->description,
+    ] : null;
+}
     
     public static function form(Form $form): Form
     {
@@ -264,40 +298,31 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                     // Disable the select field if supplier_id is null
                                     return is_null($get('../../supplier_name'));
                                 })
-                                ->afterStateUpdated(function ($state, callable $set) {
+                                ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                     // Fetch the associated description when item_code is selected
+                                    $project_id = $get('../../project_id');
+                                    $material = static::getMaterialFromState($state, $project_id);
+                                   
                                     
-                                    $materialItem = MaterialItem::where('description', $state)->first();
-                                    
-                                    if ($materialItem) {
+                                    if ($material) {
                                         // Populate the description if the item exists
-                                        $set('item_code', $materialItem->code); // Set the description directly
-                                        $list = ItemProjectPrice::where('item_code', $materialItem->code)->first()?->price_list;
-
-                                        $projectprice = ItemProjectPrice::where('item_code', $materialItem->code)->first()?->price;
-                                        if ($projectprice) {
-                                            $set('cost', $projectprice);
-                                            $set('price_list', $list);
-                                        } else {
-                                            // Try to get the base price if project-specific price is not available
-                                            $item_base_id = 1;
-                                            $item_base_id = ItemBase::where('effective_from', '<=', now()->today())->where('effective_to', '>=', now()->today())->first()->id;
-                                            $baseprice = ItemBasePrice::where('material_item_code', $materialItem->code)->where('item_base_id', $item_base_id)->first()?->price;
-                                            if ($baseprice) {
-                                                $set('cost', $baseprice);
-                                                $set('price_list', 'base_price');
-                                            } elseif($baseprice===0) {
-                                                // Set a default cost if neither project-specific nor base price is found
-                                                $set('cost', 0.0000);
-                                            }
-                                            else
-                                            $set('cost', 911);
+                                        $data = [
+                                            'qty' => 1, 'description' => $material->description, 'item_code' => $material->code, 'price_list' => $material->price_list, 'cost' => $material->cost
+                                        ];
+                                      
+                                        foreach ($data as $field => $value) {
+                                            $set($field, $value);
                                         }
+                                        
+                                        
+                                       
                                     } else {
-                                        $set('qty', 1);
-                                        $set('item_code', null);
-                                        $set('price_list', null);
-                                        $set('cost', null);
+                                        $data = [
+                                            'qty' => 1, 'description' => '', 'item_code' => null, 'price_list' => null, 'cost' => null
+                                        ];
+                                        foreach ($data as $field => $value) {
+                                            $set($field, $value);
+                                        }
                                     }
                                 }),
 
@@ -344,43 +369,70 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                 })
                                 ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                     // Fetch the associated description when item_code is selected
-                                    $materialItem = MaterialItem::where('code', $state)->first();
-                                    $project = Project::find($get('../../project_id'));
-                                    if ($materialItem) {
+                                    $project_id = $get('../../project_id');
+                                    $material = static::getMaterialFromState($state, $project_id);
+                                   
+                                    
+                                    if ($material) {
                                         // Populate the description if the item exists
-                                        $set('description', $materialItem->description); // Set the description directly
-                                        
-                                        // Try to get project-specific price
-                                        $projectprice = ItemProjectPrice::where('item_code', $materialItem->code)->where('project_number', $project->site_reference)->first()?->price;
-                                        $list = ItemProjectPrice::where('item_code', $materialItem->code)->first()?->price_list;
-                                        if ($projectprice) {
-                                            $set('cost', $projectprice);
-                                            $set('price_list', $list);
-                                            // dd($projectprice);
-                                        } else {
-                                            // Try to get the base price if project-specific price is not available
-                                            $item_base_id = 1;
-                                            $item_base_id = ItemBase::where('effective_from', '<=', now()->today())->where('effective_to', '>=', now()->today())->first()->id;
-                                            $baseprice = ItemBasePrice::where('material_item_code', $materialItem->code)->where('item_base_id', $item_base_id)->first()?->price;
-                                            if ($baseprice) {
-                                                $set('cost', $baseprice);
-                                                $set('price_list', 'base_price');
-                                            } elseif($baseprice===0) {
-                                                // Set a default cost if neither project-specific nor base price is found
-                                                $set('cost', 0.0000);
-                                                $set('price_list' , 'no price set');
-                                            }
-                                            else
-                                            $set('cost', 911);
+                                        $data = [
+                                            'qty' => 1, 'description' => $material->description, 'item_code' => $material->code, 'price_list' => $material->price_list, 'cost' => $material->cost
+                                        ];
+                                      
+                                        foreach ($data as $field => $value) {
+                                            $set($field, $value);
                                         }
+                                        
+                                        
+                                       
                                     } else {
-                                        // Clear the description if no item is found
-                                        $set('description', null);
-                                        $set('qty', 1);
-                                        $set('cost', null);
-                                        $set('price_list', null);
+                                        $data = [
+                                            'qty' => 1, 'description' => null, 'item_code' => null, 'price_list' => null, 'cost' => null
+                                        ];
+                                        foreach ($data as $field => $value) {
+                                            $set($field, $value);
+                                        }
                                     }
                                 }),
+                                // ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                //     // Fetch the associated description when item_code is selected
+                                //     $materialItem = MaterialItem::where('code', $state)->first();
+                                //     $project = Project::find($get('../../project_id'));
+                                //     if ($materialItem) {
+                                //         // Populate the description if the item exists
+                                //         $set('description', $materialItem->description); // Set the description directly
+                                        
+                                //         // Try to get project-specific price
+                                //         $projectprice = ItemProjectPrice::where('item_code', $materialItem->code)->where('project_number', $project->site_reference)->first()?->price;
+                                //         $list = ItemProjectPrice::where('item_code', $materialItem->code)->first()?->price_list;
+                                //         if ($projectprice) {
+                                //             $set('cost', $projectprice);
+                                //             $set('price_list', $list);
+                                //             // dd($projectprice);
+                                //         } else {
+                                //             // Try to get the base price if project-specific price is not available
+                                //             $item_base_id = 1;
+                                //             $item_base_id = ItemBase::where('effective_from', '<=', now()->today())->where('effective_to', '>=', now()->today())->first()->id;
+                                //             $baseprice = ItemBasePrice::where('material_item_code', $materialItem->code)->where('item_base_id', $item_base_id)->first()?->price;
+                                //             if ($baseprice) {
+                                //                 $set('cost', $baseprice);
+                                //                 $set('price_list', 'base_price');
+                                //             } elseif($baseprice===0) {
+                                //                 // Set a default cost if neither project-specific nor base price is found
+                                //                 $set('cost', 0.0000);
+                                //                 $set('price_list' , 'no price set');
+                                //             }
+                                //             else
+                                //             $set('cost', 911);
+                                //         }
+                                //     } else {
+                                //         // Clear the description if no item is found
+                                //         $set('description', null);
+                                //         $set('qty', 1);
+                                //         $set('cost', null);
+                                //         $set('price_list', null);
+                                //     }
+                                // }),
                                 
                             
                               
@@ -846,23 +898,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
             'view' => Pages\ViewRequisition::route('{record}/view'),
         ];
     }
-    public static function calculateHaversineDistance($lat1, $lon1, $lat2, $lon2)
-{
-    $earthRadius = 6371; // Radius of the earth in km
-
-    $dLat = deg2rad($lat2 - $lat1);
-    $dLon = deg2rad($lon2 - $lon1);
-
-    $a = sin($dLat / 2) * sin($dLat / 2) +
-        cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-        sin($dLon / 2) * sin($dLon / 2);
-
-    $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-
-    $distance = $earthRadius * $c; // Distance in km
-
-    return $distance;
-}
+    
 public static function replicateRequisition(Requisition $requisition): void
 {
     // Replicate the project instance
@@ -881,4 +917,6 @@ public static function replicateRequisition(Requisition $requisition): void
         $newItem->save();
     }
 }
+
+
 }
