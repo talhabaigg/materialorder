@@ -36,6 +36,8 @@
     "sinnbeck/markdom": "^2.0",
     "spatie/laravel-pdf": "^1.5",
     "spatie/laravel-permission": "^6.9",
+    "symfony/http-client": "^7.1",
+    "symfony/postmark-mailer": "^7.1",
     "tapp/filament-google-autocomplete-field": "^1.0",
     "tomatophp/filament-fcm": "^1.0",
     "tomatophp/filament-pwa": "^1.0",

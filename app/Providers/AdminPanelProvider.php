@@ -43,11 +43,10 @@ class AdminPanelProvider extends PanelProvider
             ->profile()
             ->spa()
             ->databaseNotifications()
-            
             ->plugins([
                 \TomatoPHP\FilamentPWA\FilamentPWAPlugin::make(),
                 \TomatoPHP\FilamentSettingsHub\FilamentSettingsHubPlugin::make()
-                ->allowShield(),
+                    ->allowShield(),
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 BreezyCore::make()
                     ->myProfile(
@@ -56,27 +55,21 @@ class AdminPanelProvider extends PanelProvider
                         hasAvatars: false
                     )
                     ->enableTwoFactorAuthentication(),
-
-                
-
                 FilamentJobsMonitorPlugin::make()
                     ->enableNavigation(
-                        fn () => auth()->user()->hasRole('super_admin') || auth()->user()->can('view_any_queue_job)'),
+                        fn() => auth()->user()->hasRole('super_admin') || auth()->user()->can('view_any_queue_job)'),
                     )
                     ->navigationCountBadge()
                     ->navigationGroup('Settings'),
-
                 FilamentPeekPlugin::make()
                     ->disablePluginStyles(),
-
                 FilamentExceptionsPlugin::make(),
-
                 // GravatarPlugin::make(),
             ])
             // ->defaultAvatarProvider(GravatarProvider::class)
             // ->favicon(asset('/favicon-32x32.png'))
             ->favicon(asset('/superior-group-logo.svg'))
-            ->brandLogo(fn () => view('components.logo'))
+            ->brandLogo(fn() => view('components.logo'))
             ->navigationGroups([
                 'Main',
                 'Admin',
@@ -92,10 +85,9 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Pages\Dashboard::class,
             ])
-            // ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 // Widgets\AccountWidget::class,
-               
             ])
             ->middleware([
                 EncryptCookies::class,
