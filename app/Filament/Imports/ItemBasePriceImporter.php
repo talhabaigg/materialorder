@@ -28,35 +28,32 @@ class ItemBasePriceImporter extends Importer
                 ->rules(['required']),
             ImportColumn::make('price')
                 ->requiredMapping(),
-                
-                
-            
         ];
     }
 
     public function resolveRecord(): ?ItemBasePrice
-{
-    // Retrieve and clean the material item code and ID from the imported data
-    $materialItemCode = trim($this->data['material_item_code']);
-    $materialItemId = trim($this->data['material_item_id']);
-    
-   
+    {
+        // Retrieve and clean the material item code and ID from the imported data
+        $materialItemCode = trim($this->data['material_item_code']);
+        $materialItemId = trim($this->data['material_item_id']);
 
-    // Create or update the ItemBasePrice recorddd
-    return ItemBasePrice::updateOrCreate(
-        [
-            'item_base_id' => $materialItemId,
-          
-            'material_item_code' => $materialItemCode,
-        ],
-        [
-            'material_item_id' => $materialItemId, // Use the retrieved material_item_id
-            'price' => 2.6, // Use the determined price value
-            'created_by' => Auth::id(), // Set created_by to the authenticated user ID
-            'updated_by' => Auth::id(), // Set updated_by to the authenticated user ID
-        ]
-    );
-}
+
+
+        // Create or update the ItemBasePrice recorddd
+        return ItemBasePrice::updateOrCreate(
+            [
+                'item_base_id' => $materialItemId,
+
+                'material_item_code' => $materialItemCode,
+            ],
+            [
+                'material_item_id' => $materialItemId, // Use the retrieved material_item_id
+                'price' => 2.6, // Use the determined price value
+                'created_by' => Auth::id(), // Set created_by to the authenticated user ID
+                'updated_by' => Auth::id(), // Set updated_by to the authenticated user ID
+            ]
+        );
+    }
 
     public static function getCompletedNotificationBody(Import $import): string
     {

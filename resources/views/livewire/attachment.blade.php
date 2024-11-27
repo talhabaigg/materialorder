@@ -3,6 +3,6 @@
         {{ $this->form }}
         <x-filament::button size="sm" class="mt-2" wire:click="submitAttachment">
             Upload
-        </x-filament::button >
+        </x-filament::button>
     </form>
 </div>

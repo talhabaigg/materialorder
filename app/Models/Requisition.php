@@ -9,18 +9,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Requisition extends Model
 {
     use HasFactory, SoftDeletes;
-    
+
 
     protected $fillable = [
-        'date_required', 
+        'date_required',
         'pickup_time',
-        'supplier_name', 
-        'project_id', 
-        'site_reference', 
-        'delivery_contact', 
-        'pickup_by', 
-        'requested_by', 
-        'deliver_to', 
+        'supplier_name',
+        'project_id',
+        'site_reference',
+        'delivery_contact',
+        'pickup_by',
+        'requested_by',
+        'deliver_to',
         'notes',
     ];
 
@@ -29,7 +29,7 @@ class Requisition extends Model
         static::creating(function ($requisition) {
             // Get the last requisition number, if any
             $maxId = Requisition::withTrashed()->max('id');
-            
+
             // Increment the maxId for the new requisition number
             $nextNumber = $maxId ? $maxId + 1 : 1; // If no requisition exists, start with 1
 
@@ -41,11 +41,11 @@ class Requisition extends Model
         static::updating(function ($requisition) {
             // Set updated_by to the currently authenticated user's ID
             $requisition->updated_by = auth()->id();
-        
+
             // Capture the original and new status of `is_processed`
             $oldStatus = $requisition->getOriginal('is_processed');
             $newStatus = $requisition->is_processed;
-        
+
             // Log activity if `is_processed` has changed
             if ($oldStatus != $newStatus) {
                 RequisitionActivity::create([
@@ -56,12 +56,12 @@ class Requisition extends Model
                 ]);
             }
         });
-        
-        
+
+
     }
 
-    
-   
+
+
 
     public function lineItems()
     {
@@ -86,15 +86,17 @@ class Requisition extends Model
     {
         return $this->belongsTo(Project::class, 'project_id');
     }
-    public function activities() {
+    public function activities()
+    {
         return $this->hasMany(RequisitionActivity::class, 'requisition_id');
     }
-    public function comments() {
+    public function comments()
+    {
         return $this->hasMany(RequisitionComment::class, 'requisition_id');
     }
     public function attachments()
     {
         return $this->hasMany(RequisitionAttachment::class);
     }
-    
+
 }
