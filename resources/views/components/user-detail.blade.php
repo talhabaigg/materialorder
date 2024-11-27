@@ -1,4 +1,4 @@
-@php($user = $record->creator)
+@php($user = $record->creator?? $record)
 @if($user)
 <div class="rounded-lg max-w-xs flex flex-col items-center">
     <div class="mb-2 flex justify-center w-full">

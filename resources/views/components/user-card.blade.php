@@ -1,4 +1,8 @@
-@php($user = $record->creator)
+@php
+    // Check if creator exists, if not, use $record as the user
+    $user = $record->creator ?? $record;
+    // dd($user);
+@endphp
 @if($user)
 <div class="bg-white dark:bg-gray-800 rounded-lg p-4 max-w-xs shadow-md">
     <div class="flex justify-between items-center mb-2">
@@ -18,7 +22,7 @@
     <p class="mb-4 text-sm font-light text-gray-500 dark:text-gray-400">
         {{ __('Member since') }}
         <a class="text-blue-600 dark:text-blue-400">
-            {{ $user->created_at->format('Y-m-d') }}
+            {{ $user->created_at->format('d-m-Y') }}
         </a>
     </p>
 </div>

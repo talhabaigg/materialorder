@@ -2,15 +2,16 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UserResource\Pages;
-use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use App\Models\User;
 use Filament\Tables;
-use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Hash;
+use Filament\Tables\Columns\ImageColumn;
+use LaraZeus\Popover\Tables\PopoverColumn;
+use App\Filament\Resources\UserResource\Pages;
 
 class UserResource extends Resource
 {
@@ -88,25 +89,33 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('avatar')
-                    ->getStateUsing(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->name) . '&background=2563eb&color=fff&size=128')
-                    ->label('Avatar')
-                    ->rounded(),
-                    
+                PopoverColumn::make('user_detail')
+                    ->label('')
+                    ->content(fn($record) => view('components.user-card', ['record' => $record]))
+                    ->formatStateUsing(function ($record) {
+                        return view('components.user-detail', ['record' => $record])->render();
+                    })
+                    ->html()
+                    ->extraHeaderAttributes([
+                        'class' => 'w-16'
+                    ])
+                    // main options
+                    ->trigger('hover') // support click and hover
+                    ->placement('right') // for more: https://alpinejs.dev/plugins/anchor#positioning
+                    ->offset(0) // int px, for more: https://alpinejs.dev/plugins/anchor#offset
+                    ->popOverMaxWidth('none')
+                    // ->icon('heroicon-o-chevron-right') // show custom icon
+                    ->content(fn($record) => view('components.user-card', ['record' => $record])),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-
-                Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
+                // Tables\Columns\TextColumn::make('email')
+                //     ->searchable(),
                 Tables\Columns\TextColumn::make('roles.name')  // Adjust based on how the role is stored
                     ->label('Role')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable(),
-              
-                
-            ])
+                    ->searchable()
+                    ->badge(),
+  
+           ])
             ->filters([
                 //
             ])
