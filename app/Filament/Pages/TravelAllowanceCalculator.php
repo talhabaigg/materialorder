@@ -29,12 +29,14 @@ class TravelAllowanceCalculator extends Page
         // Create a response that will trigger the CSV download
         $response = new StreamedResponse(function () use ($data) {
             $handle = fopen('php://output', 'w');
-            
+
             // Add the headers to the CSV file
             fputcsv($handle, [
-                'Employee', 
-                'Home to Project Distance', 
-                'Office to Project Distance', 
+                'Employee',
+                'Home',
+                'Project',
+                'Home to Project Distance',
+                'Office to Project Distance',
                 'Zone'
             ]);
 
@@ -42,6 +44,8 @@ class TravelAllowanceCalculator extends Page
             foreach ($data as $employee => $coordinates) {
                 fputcsv($handle, [
                     $employee,
+                    $coordinates['home']['lat'] . ',' . $coordinates['home']['lng'],
+                    $coordinates['project']['lat'] . ',' . $coordinates['project']['lng'],
                     $coordinates['home_to_project_distance'],
                     $coordinates['office_to_project_distance'],
                     $coordinates['zone'],
@@ -59,5 +63,5 @@ class TravelAllowanceCalculator extends Page
     }
     protected static string $view = 'filament.pages.travel-allowance-calculator';
 
-    
+
 }
