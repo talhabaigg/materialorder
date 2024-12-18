@@ -22,7 +22,7 @@
   "dependencies": {
     "firebase": "^11.0.2",
     "leaflet": "^1.9.4",
-    "puppeteer": "^23.6.0",
+    "puppeteer": "^23.11.0",
     "tippy.js": "^6.3.7"
   }
 }
