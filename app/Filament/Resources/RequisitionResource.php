@@ -328,13 +328,14 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                             $supplierId = $get('../../supplier_name');
                                             $lineItems = $get('../../lineItems') ?? [];
                                             $selectedCodes = collect($lineItems)->pluck('item_code')->filter()->toArray();
-
+                                            $project = Project::find($get('../../project_id'));
                                             if (empty($supplierId)) {
                                                 return [];
                                             }
 
                                             // Grouped options example
                                             return [
+                                                'Favourite Material for Project' => $project->materials()->pluck('description', 'description')->toArray(),
                                                 'Favourite' => MaterialItem::when($supplierId, function ($query) use ($supplierId) {
                                                 $query->where('supplier_name', $supplierId); // Assuming 'supplier_name' is correct
                                             })
@@ -353,6 +354,8 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                                             })
                                                     ->pluck('description', 'description')
                                                     ->toArray(),
+
+
                                             ];
                                         })
 
