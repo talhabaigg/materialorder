@@ -39,4 +39,9 @@ class Project extends Model
     {
         return $this->belongsToMany(User::class, 'project_user');
     }
+
+    public function materials()
+    {
+        return $this->belongsToMany(MaterialItem::class, 'project_material');
+    }
 }

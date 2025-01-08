@@ -92,6 +92,7 @@ class ProjectResource extends Resource
     {
         return [
             RelationManagers\UsersRelationManager::class,
+            RelationManagers\MaterialsRelationManager::class,
         ];
     }
 

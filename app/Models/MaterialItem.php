@@ -10,11 +10,11 @@ class MaterialItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        'code', 
-        'description', 
-        'supplier_name', 
-        'costcode', 
-        
+        'code',
+        'description',
+        'supplier_name',
+        'costcode',
+
     ];
 
     public function basic()
@@ -23,16 +23,18 @@ class MaterialItem extends Model
         return $this->hasOne(ItemBasePrice::class, 'material_item_code', 'code');
     }
 
-    
-    
-    public function vendor() {
-        return $this->hasOne(Vendor::class,  'code', 'supplier_name');
+
+
+    public function vendor()
+    {
+        return $this->hasOne(Vendor::class, 'code', 'supplier_name');
     }
 
-    
+
     public function projects()
     {
-        return $this->belongsToMany(Project::class, 'project_favourite_items');
+        return $this->belongsToMany(Project::class, 'project_material');
     }
-    
+
+
 }
