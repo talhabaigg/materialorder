@@ -18,7 +18,7 @@ class VendorResource extends Resource
 {
     protected static ?string $model = Vendor::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
+    protected static ?string $navigationIcon = 'heroicon-o-truck';
     protected static ?string $navigationGroup = 'Admin';
 
     public static function form(Form $form): Form
@@ -26,15 +26,15 @@ class VendorResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
-                ->required()
-                ->unique(ignoreRecord: true)
-                ->maxLength(255),
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->maxLength(255),
 
-            Forms\Components\TextInput::make('code')
-                
-                ->required()
-                ->unique(ignoreRecord: true)
-                ->maxLength(255),
+                Forms\Components\TextInput::make('code')
+
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->maxLength(255),
             ]);
     }
 

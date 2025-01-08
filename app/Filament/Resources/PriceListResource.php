@@ -20,7 +20,7 @@ class PriceListResource extends Resource
 {
     protected static ?string $model = PriceList::class;
     protected static ?string $navigationLabel = 'Manage Project Prices';
-    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
+    protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
     protected static ?string $navigationGroup = 'Admin';
 
     public static function form(Form $form): Form
@@ -31,14 +31,14 @@ class PriceListResource extends Resource
                     ->required()
                     ->columnSpanFull(),
 
-              Select::make('site_reference')
+                Select::make('site_reference')
                     ->label('Select Project') // Optional: add a label
                     ->options(function () {
                         return Project::all()->pluck('name', 'site_reference')->toArray();
                     })
                     ->placeholder('Select a Project')->columnSpanFull() // Optional: add a placeholder
-                , 
- 
+                ,
+
             ]);
     }
 
@@ -52,7 +52,7 @@ class PriceListResource extends Resource
                 Tables\Columns\TextColumn::make('project.name')
                     ->badge()
                     ->sortable(),
-                
+
             ])
             ->filters([
                 //

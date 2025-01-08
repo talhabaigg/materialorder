@@ -47,22 +47,22 @@ class ItemProjectPriceResource extends Resource
             ->columns([
 
                 Tables\Columns\TextColumn::make('price_list')
-                ->badge()
-                ->sortable()
-               ,
-               Tables\Columns\TextColumn::make('item_code')
-               ->searchable()
-                ->sortable()
-               ,
-               Tables\Columns\TextColumn::make('item.description')
-                
-                ->sortable()
-               ,
-               Tables\Columns\TextColumn::make('projectlist.name')
-               ->label('Project')
-                
-                ->sortable()
-               ,
+                    ->badge()
+                    ->sortable()
+                ,
+                Tables\Columns\TextColumn::make('item_code')
+                    ->searchable()
+                    ->sortable()
+                ,
+                Tables\Columns\TextColumn::make('item.description')
+
+                    ->sortable()
+                ,
+                Tables\Columns\TextColumn::make('projectlist.name')
+                    ->label('Project')
+
+                    ->sortable()
+                ,
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -72,7 +72,7 @@ class ItemProjectPriceResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            
+
             ->filters([
                 //
             ])
@@ -82,7 +82,7 @@ class ItemProjectPriceResource extends Resource
             ->headerActions([
                 ImportAction::make()
                     ->importer(ItemProjectPriceImporter::class)->label('Import')->tooltip('Update or Create Project Prices'),
-                ])
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

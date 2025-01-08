@@ -17,13 +17,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class ItemBaseResource extends Resource
 {
     protected static ?string $model = ItemBase::class;
-
-    
     protected static ?string $navigationLabel = 'Manage Base Prices';
     protected static ?string $navigationGroup = 'Admin';
-
-    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
-
+    protected static ?string $navigationIcon = 'heroicon-o-presentation-chart-bar';
     public static function form(Form $form): Form
     {
         return $form
@@ -34,7 +30,6 @@ class ItemBaseResource extends Resource
                 Forms\Components\DatePicker::make('effective_from')
                     ->required(),
                 Forms\Components\DatePicker::make('effective_to'),
-                
             ]);
     }
 
@@ -43,7 +38,6 @@ class ItemBaseResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    
                     ->sortable(),
                 Tables\Columns\TextColumn::make('effective_from')
                     ->date()
@@ -51,7 +45,7 @@ class ItemBaseResource extends Resource
                 Tables\Columns\TextColumn::make('effective_to')
                     ->date()
                     ->sortable(),
-               
+
             ])
             ->filters([
                 //
@@ -69,7 +63,7 @@ class ItemBaseResource extends Resource
     public static function getRelations(): array
     {
         return [
-           PriceRelationManager::class,
+            PriceRelationManager::class,
         ];
     }
 
