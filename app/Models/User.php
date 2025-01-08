@@ -83,4 +83,9 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->fcm_token;
     }
+
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'project_user');
+    }
 }

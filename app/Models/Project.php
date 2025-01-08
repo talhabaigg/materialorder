@@ -11,13 +11,13 @@ class Project extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 
-        'coordinates',  
-        'site_reference', 
-        'delivery_contact', 
-        'pickup_by', 
-        'requested_by', 
-        'deliver_to', 
+        'name',
+        'coordinates',
+        'site_reference',
+        'delivery_contact',
+        'pickup_by',
+        'requested_by',
+        'deliver_to',
         'notes',
     ];
     public function priceList()
@@ -33,5 +33,10 @@ class Project extends Model
     public function favouriteMaterials()
     {
         return $this->belongsToMany(MaterialItem::class, 'project_favourite_items');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'project_user');
     }
 }

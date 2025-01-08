@@ -23,7 +23,7 @@ use Tapp\FilamentGoogleAutocomplete\Forms\Components\GoogleAutocomplete;
 class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
-    protected static ?string $navigationLabel = 'Manage Projects';
+    protected static ?string $navigationLabel = 'Projects';
     protected static ?string $navigationGroup = 'Admin';
 
     protected static ?string $navigationIcon = 'heroicon-o-building-library';
@@ -33,33 +33,33 @@ class ProjectResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name'),
-                
+
                 TextInput::make('site_reference'),
                 TextInput::make('delivery_contact'),
                 TextInput::make('pickup_by'),
                 TextInput::make('requested_by'),
                 Textarea::make('notes')->columnSpanFull(),
-                
+
 
                 GoogleAutocomplete::make('google_search')
-                        ->label('Google look-up')
-                        ->countries([
-                            'US',
-                            'AU',
-                        ])
-                        ->language('pt-BR')
-                        ->withFields([
-                            Forms\Components\TextInput::make('deliver_to')
-                                ->extraInputAttributes([
-                                    'data-google-field' => '{street_number} {route}, {sublocality_level_1}, {locality}, {administrative_area_level_1}, {postal_code}, {country}',
-                                ]),
-                           
-                            Forms\Components\TextInput::make('coordinates')
-                                ->extraInputAttributes([
-                                    'data-google-field' => '{latitude}, {longitude}',
-                                ]),
-                        ]),
-                
+                    ->label('Google look-up')
+                    ->countries([
+                        'US',
+                        'AU',
+                    ])
+                    ->language('pt-BR')
+                    ->withFields([
+                        Forms\Components\TextInput::make('deliver_to')
+                            ->extraInputAttributes([
+                                'data-google-field' => '{street_number} {route}, {sublocality_level_1}, {locality}, {administrative_area_level_1}, {postal_code}, {country}',
+                            ]),
+
+                        Forms\Components\TextInput::make('coordinates')
+                            ->extraInputAttributes([
+                                'data-google-field' => '{latitude}, {longitude}',
+                            ]),
+                    ]),
+
             ]);
     }
 
@@ -91,7 +91,7 @@ class ProjectResource extends Resource
     public static function getRelations(): array
     {
         return [
-           //
+            RelationManagers\UsersRelationManager::class,
         ];
     }
 
