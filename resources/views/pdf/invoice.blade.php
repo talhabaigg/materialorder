@@ -1,118 +1,185 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
+    <meta charset="utf-8" />
+    <title>{{ $requisition_id }}</title>
 
-    <title>Material Requisition</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-            margin: 0;
-            padding: 0;
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            font-size: 16px;
+            line-height: 24px;
+            font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+            color: #555;
         }
 
-        .header {
-            text-align: left;
-            margin-bottom: 20px;
-        }
-
-        .logo {
-            max-width: 150px;
-            /* Adjust the logo size */
-            height: auto;
-            /* Maintain aspect ratio */
-        }
-
-        .table-items {
+        .invoice-box table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-
-        th,
-        td {
-            border: 1px solid black;
-        }
-
-        th,
-        td {
-            padding: 8px;
+            line-height: inherit;
             text-align: left;
         }
 
-        .header-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            border-bottom: 1px solid gray;
-
+        .invoice-box table td {
+            padding: 5px;
+            vertical-align: top;
         }
 
-        .header-table-items {
-            width: 50%;
-            border: none;
+        .invoice-box table tr td:nth-child(2) {
+            text-align: right;
+        }
+
+        .invoice-box table tr.top table td {
+            padding-bottom: 20px;
+        }
+
+        .invoice-box table tr.top table td.title {
+            font-size: 45px;
+            line-height: 45px;
+            color: #333;
+        }
+
+        .invoice-box table tr.information table td {
+            padding-bottom: 40px;
+        }
+
+        .invoice-box table tr.heading td {
+            background: #eee;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+        }
+
+        .invoice-box table tr.details td {
+            padding-bottom: 20px;
+        }
+
+        .invoice-box table tr.item td {
+            border-bottom: 1px solid #eee;
+        }
+
+        .invoice-box table tr.item.last td {
+            border-bottom: none;
+        }
+
+        .invoice-box table tr.total td:nth-child(2) {
+            border-top: 2px solid #eee;
+            font-weight: bold;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .invoice-box table tr.top table td {
+                width: 100%;
+                display: block;
+                text-align: center;
+            }
+
+            .invoice-box table tr.information table td {
+                width: 100%;
+                display: block;
+                text-align: center;
+            }
+        }
+
+        /** RTL **/
+        .invoice-box.rtl {
+            direction: rtl;
+            font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+        }
+
+        .invoice-box.rtl table {
+            text-align: right;
+        }
+
+        .invoice-box.rtl table tr td:nth-child(2) {
+            text-align: left;
         }
     </style>
 </head>
 
 <body>
-    <table class="header-table">
-        <tr>
-            <td style="width: 50%; border: none;"> <img src="{{ public_path('Superior New logo.png') }}" alt="Logo"
-                    class="logo"></td>
-            <td style="text-align: right; border: none;">
-                <p style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">Material requisition</p>
-                <p style="font-size: 16px; color: gray;">REQ-0001</p>
-            </td>
-        </tr>
-    </table>
-    <div>
-        <table class="header-table">
-            <tr>
-                <td style="width: 50%; background: black; color: white;  font-weight: bold;">Date Required
-                </td>
-                <td> {{ \Carbon\Carbon::parse($date_required)->format('d/m/Y') }}
-                </td>
-            </tr>
-        </table>
-    </div>
-    <p><strong>Date Required:</strong> {{ \Carbon\Carbon::parse($date_required)->format('d/m/Y') }}</p>
-    <p><strong>Supplier:</strong> {{ $supplier }}</p>
-    <p><strong>Project:</strong> {{ $project_id }}</p>
-    <p><strong>Site Reference:</strong> {{ $site_ref }}</p>
-    <p><strong>Delivery Contact:</strong> {{ $delivery_contact }}</p>
-    <p><strong>Pickup By:</strong> {{ $pickup_by }}</p>
-    <p><strong>Requested By:</strong> {{ $requested_by }}</p>
-    <p><strong>Delivery To:</strong> {{ $delivery_to }}</p>
-    <p><strong>Notes:</strong> {!! $notes !!}</p> <!-- Rendered HTML from Markdown -->
+    <div class="invoice-box">
+        <table cellpadding="0" cellspacing="0">
+            <tr class="top">
+                <td colspan="2">
+                    <table>
+                        <tr>
+                            <td class="title">
 
-    <h2>Requested Items</h2>
-    <table class="table-items">
-        <thead>
-            <tr>
-                <th>Item Code</th>
-                <th>Description</th>
-                <th>Quantity</th>
-                {{-- <th>Cost (ea)</th>
-                <th>Total</th> --}}
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($req_lines as $line)
-                <tr>
-                    <td>{{ $line['item_code'] }}</td>
-                    <td>{{ $line['description'] }}</td>
-                    <td>{{ $line['qty'] }}</td>
-                    {{-- <td>
-                   {{$line['cost']}}
+                                <img src="{{ public_path('Superior New logo.png') }}" alt="Logo" class="logo"
+                                    style="width: 100%; max-width: 150px">
+                            </td>
+
+                            <td>
+                                Requisition #: REQ-00001<br />
+                                Required: {{ \Carbon\Carbon::parse($date_required)->format('d/m/Y') }}<br />
+                                Due: February 1, 2023
+                            </td>
+                        </tr>
+                    </table>
                 </td>
-                <td>{{$line['cost'] * $line['qty']}}</td> --}}
+            </tr>
+
+            <tr class="information">
+                <td colspan="2">
+                    <table>
+
+                        <tr>
+                            <td>
+
+                                Project: {{ $project_id }}<br />
+                                Site reference: {{ $site_ref }}<br />
+                            </td>
+
+                            <td>
+                                Supplier: {{ $supplier }}<br />
+                                Delivery contact: {{ $delivery_contact }}<br />
+                                Pickup by: {{ $pickup_by }}<br />
+                                Requested by: {{ $requested_by }}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr class="heading">
+                <td>Delivery address: </br>
+                </td>
+
+                <td>Notes</td>
+            </tr>
+
+            <tr class="details">
+                <td> {{ $delivery_to }}</td>
+
+                <td>{!! $notes !!}</td>
+            </tr>
+
+            <tr class="heading">
+                <td>Code/description</td>
+
+                <td>Qty</td>
+            </tr>
+            @foreach ($req_lines as $line)
+                <tr class="item">
+                    <td>{{ $line['item_code'] }}-
+                        {{ $line['description'] }}</td>
+
+                    <td>{{ $line['qty'] }}</td>
                 </tr>
             @endforeach
-        </tbody>
-    </table>
+
+
+            {{-- <tr class="total">
+                <td></td>
+
+                <td>Total: $385.00</td>
+            </tr> --}}
+        </table>
+    </div>
 </body>
 
 </html>
