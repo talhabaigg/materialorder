@@ -16,8 +16,6 @@ class RequisitionPDFController extends Controller
         $pdf = pdf::loadView('pdf.invoice', [
             'requisition' => Requisition::with('lineItems')->find($requisition->id),
         ]);
-
-
         return $pdf->download("{$requisition->requisition_number}.pdf");
     }
     // public function __invoke(Requisition $requisition)
