@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>{{ $requisition_id }}</title>
+    <title>{{ $requisition->requisition_number }}</title>
 
     <style>
         .invoice-box {
@@ -111,12 +111,14 @@
 
                                 <img src="{{ public_path('Superior New logo.png') }}" alt="Logo" class="logo"
                                     style="width: 100%; max-width: 150px">
+
                             </td>
 
                             <td>
                                 Requisition #: REQ-00001<br />
-                                Required: {{ \Carbon\Carbon::parse($date_required)->format('d/m/Y') }}<br />
-                                Due: February 1, 2023
+                                Required:
+                                {{ \Carbon\Carbon::parse($requisition->date_required)->format('d/m/Y') }}<br />
+                                Requested: {{ \Carbon\Carbon::parse($requisition->created_at)->format('d/m/Y') }}<br />
                             </td>
                         </tr>
                     </table>
@@ -130,15 +132,15 @@
                         <tr>
                             <td>
 
-                                Project: {{ $project_id }}<br />
-                                Site reference: {{ $site_ref }}<br />
+                                Project: {{ $requisition->projectsetting->name }}<br />
+                                Site reference: {{ $requisition->site_reference }}<br />
                             </td>
 
                             <td>
-                                Supplier: {{ $supplier }}<br />
-                                Delivery contact: {{ $delivery_contact }}<br />
-                                Pickup by: {{ $pickup_by }}<br />
-                                Requested by: {{ $requested_by }}
+                                Supplier: {{ $requisition->supplier_name }}<br />
+                                Delivery contact: {{ $requisition->delivery_contact }}<br />
+                                Pickup by: {{ $requisition->pickup_by }}<br />
+                                Requested by: {{ $requisition->requested_by }}
                             </td>
                         </tr>
                     </table>
@@ -153,17 +155,17 @@
             </tr>
 
             <tr class="details">
-                <td> {{ $delivery_to }}</td>
+                <td> {{ $requisition->deliver_to }}</td>
 
-                <td>{!! $notes !!}</td>
+                <td>{!! $requisition->notes !!}</td>
             </tr>
 
             <tr class="heading">
-                <td>Code/description</td>
+                <td>Code/Description</td>
 
                 <td>Qty</td>
             </tr>
-            @foreach ($req_lines as $line)
+            @foreach ($requisition->lineItems as $line)
                 <tr class="item">
                     <td>{{ $line['item_code'] }}-
                         {{ $line['description'] }}</td>
