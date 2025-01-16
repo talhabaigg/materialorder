@@ -731,7 +731,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                         ->openUrlInNewTab(),
 
                     Action::make('download xlsx')
-                        ->icon('heroicon-o-document')
+                        ->icon('heroicon-o-table-cells')
                         ->size(ActionSize::Small)
                         ->color('gray')
                         ->url(fn(Requisition $record): string => route('requisition.excel', ['requisition' => $record->id]))
