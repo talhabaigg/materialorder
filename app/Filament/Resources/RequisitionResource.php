@@ -729,6 +729,13 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                         ->color('gray')
                         ->url(fn(Requisition $record): string => route('requisition.pdf', ['requisition' => $record->id]))
                         ->openUrlInNewTab(),
+
+                    Action::make('download xlsx')
+                        ->icon('heroicon-o-document')
+                        ->size(ActionSize::Small)
+                        ->color('gray')
+                        ->url(fn(Requisition $record): string => route('requisition.excel', ['requisition' => $record->id]))
+                        ->openUrlInNewTab(),
                     DeleteAction::make(),
                     RestoreAction::make(),  // Option to restore soft-deleted records
                 ])

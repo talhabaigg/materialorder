@@ -8,32 +8,45 @@
     <div class="grid sm:grid-cols-3 gap-5">
         <div class="col-span-1 sm:col-span-2 bg-white dark:bg-gray-900 shadow-sm p-10 rounded-lg">
 
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <span class="flex items-center gap-1 text-sm text-primary-500 font-medium">
-                        <x-heroicon-o-ticket class="w-4 h-4" />
-                        {{ $record->requisition_number }}
-                    </span>
-                    <span class="text-sm text-gray-400 font-light">|</span>
-                    <span class="flex items-center gap-1 text-sm text-gray-500">
-                        {{ $record->site_reference }}
-                    </span>
-                </div>
-                {{-- <span class="text-xl text-gray-700">
-                    {{ $record->requisition_number }}
-                </span> --}}
-            </div>
 
-            <div class="flex gap-2 pt-2">
-                <div class="px-2 py-1 rounded text-xs text-white" style="background-color: green;">
-                    {{ $record->is_processed ? 'Pending' : 'Processed' }}
+
+            <div class="flex justify-between items-center gap-2 pt-2 mb-2">
+                <div class="">
+                    <div class="flex items-center gap-2">
+                        <span class="flex items-center gap-1 text-sm text-primary-500 font-medium">
+                            <x-heroicon-o-ticket class="w-4 h-4" />
+                            {{ $record->requisition_number }}
+                        </span>
+                        <span class="text-sm text-gray-400 font-light">|</span>
+                        <span class="flex items-center gap-1 text-sm text-gray-500">
+                            {{ $record->site_reference }}
+                        </span>
+                    </div>
+                    <div class="flex justify-start gap-2 mt-2">
+                        <div
+                            class="px-2 py-1 rounded text-xs text-white {{ $record->is_processed ? 'bg-green-500' : 'bg-yellow-500' }}">
+                            {{ $record->is_processed ? 'Processed' : 'Pending' }}
+                        </div>
+                        <div
+                            class="px-2 py-1 rounded text-xs text-white  {{ $record->lineItems->count() > 50 ? 'bg-red-600' : 'bg-gray-500' }}">
+                            {{ $record->lineItems->count() > 50 ? 'High' : 'Low' }}
+                        </div>
+                        <div class="px-2 py-1 rounded text-xs text-white bg-blue-500" style="background-color: Blue;">
+                            <span class="">
+                                <a href="/admin/projects/{{ $record->project_id }}/view" class="capitalize"
+                                    target="_blank">
+                                    {{ $record->projectsetting->name }}
+                                </a>
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <div class="px-2 py-1 rounded text-xs text-white" style="background-color: Red;">
-                    {{ $record->lineItems->count() > 50 ? 'High' : 'Low' }}
-                </div>
-                <div class="px-2 py-1 rounded text-xs  text-white" style="background-color: Blue;">
-                    <span class="ml-2 capitalize">{{ $record->projectsetting->name }}</span>
-                </div>
+                <a href="{{ route('requisition.excel', ['requisition' => $record->id]) }}"
+                    class="flex items-center px-2 py-1 h-8 rounded text-xs bg-gray-500 hover:bg-gray-700 text-white dark:bg-gray-700 hover:dark:bg-gray-800 hover:shadow-lg">
+                    <img src="/button-icons/premier-logo.png" alt="Premier Logo" class="w-8 mr-2">
+                    Download
+                </a>
+
             </div>
 
             <div class="pt-5">
@@ -41,8 +54,8 @@
                 <div>{{ $record->deliver_to }}</div>
                 <span class="text-gray-500 dark:text-gray-300 text-sm font-medium">{{ __('Notes') }}</span>
 
-                <div class="bg-gray-200 p-10 rounded-2xl">
-                    <div class=" text-gray-500 text-prose break-words">{!! $record->notes !!}</div>
+                <div class="">
+                    <div class=" text-gray-500 dark:text-gray-300 text-prose break-words">{!! $record->notes !!}</div>
                 </div>
             </div>
 

@@ -52,17 +52,18 @@ class ViewRequisition extends ViewRecord implements HasForms
     {
         return [
             EditAction::make('Edit'),
-            Action::make('createfile')
-                ->tooltip('Download Sage Import file')
-                ->icon('heroicon-o-document-arrow-down')
-                ->label('Download PO Import file for Sage')
-                ->url(
-                    fn(Requisition $record): string => route(
-                        'requisition.text',
-                        ['requisition' => $record->id]
-                    )
-                )
-                ->openUrlInNewTab(),
+            // Action::make('createfile')
+            //     ->tooltip('Download Sage Import file')
+            //     ->icon('heroicon-o-document-arrow-down')
+            //     ->label('Download PO Import file for Sage')
+            //     ->url(
+            //         fn(Requisition $record): string => route(
+            //             'requisition.text',
+            //             ['requisition' => $record->id]
+            //         )
+            //     )
+            //     ->openUrlInNewTab(),
+
             Action::make('download')
                 ->icon('heroicon-o-document')
                 ->url(
