@@ -17,7 +17,7 @@
     "postcss": "^8.4.47",
     "prettier": "^2.0.5",
     "tailwindcss": "^3.4.14",
-    "vite": "^5.0.11"
+    "vite": "^6.0.9"
   },
   "dependencies": {
     "firebase": "^11.0.2",
