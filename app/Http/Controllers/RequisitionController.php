@@ -149,34 +149,37 @@ class RequisitionController extends Controller
 
                 // Iterate over line items and prepare each row
                 foreach ($requisition->lineItems as $index => $lineItem) {
+
+                    $costcode = MaterialItem::where('code', $lineItem->item_code)->first()->costcode;
+                    $formattedCostcode = substr($costcode, 0, 2) . '-' . substr($costcode, 2);
                     $row = [
                         'AP Subledger' => 'AP',
                         'PO #' => 'Next #',
                         'Vendor Code' => $requisition->supplier_name,
                         'Job #' => $requisition->site_reference,
-                        'Memo' => '',
+                        'Memo' => $requisition->notes,
                         'PO Date' => now()->toDateString(),
                         'Required Date' => $requisition->date_required,
                         'Promised Date' => $requisition->date_required,
                         'Ship To Type' => 'JOB',
                         'Ship To' => $requisition->site_reference,
-                        'Requested By' => auth()->user()->name,
+                        'Requested By' => $requisition->requested_by,
                         'Line' => $index + 1,
-                        'Item Code' => $lineItem->item_code,
-                        'Line Description' => $lineItem->description,
+                        'Item Code' => '',
+                        'Line Description' => $lineItem->item_code . '-' . $lineItem->description,
                         'Qty' => $lineItem->qty,
                         'UofM' => 'EA',
                         'Unit Cost' => $lineItem->cost,
-                        'Distribution Type' => '',
-                        'Line Job #' => '',
-                        'Cost Item' => 'NA',
-                        'Cost Type' => 'NA',
+                        'Distribution Type' => 'J',
+                        'Line Job #' => $requisition->site_reference,
+                        'Cost Item' => $formattedCostcode,
+                        'Cost Type' => 'MAT',
                         'Department' => '',
                         'Location' => '',
                         'GL Account' => '',
                         'GL Division' => '',
                         'GL SubAccount' => '',
-                        'Tax Group' => '',
+                        'Tax Group' => 'GST',
                         'Discount %' => ''
                     ];
 
