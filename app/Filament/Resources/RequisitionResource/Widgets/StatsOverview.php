@@ -14,10 +14,10 @@ class StatsOverview extends BaseWidget
     {
         $pending = Requisition::where('is_processed', false)->count();
         $requisitions = Requisition::where('is_processed', true)->count();
-        
+
         return [
-            Stat::make('Pending Requisitions', Number::format($pending))
-                ->icon('heroicon-o-question-mark-circle'),
+            // Stat::make('Pending Requisitions', Number::format($pending))
+            //     ->icon('heroicon-o-question-mark-circle'),
             // Stat::make('Completed Requisitions', Number::format($requisitions))
             //     ->icon('heroicon-o-check-circle'),
         ];

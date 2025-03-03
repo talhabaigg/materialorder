@@ -15,6 +15,7 @@ Route::get('/', function () {
 Route::get('requisition/pdf/{requisition}', RequisitionPDFController::class)->name('requisition.pdf');
 Route::get('requisition/text/{requisition}', [RequisitionController::class, 'sageImport'])->name('requisition.text');
 Route::get('requisition/excel/{requisition}', [RequisitionController::class, 'excelImport'])->name('requisition.excel');
+
 Route::post('/requisitions/{requisition}/upload-csv', [RequisitionController::class, 'uploadCsv'])
     ->name('requisition.uploadCsv');
 

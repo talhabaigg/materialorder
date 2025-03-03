@@ -19,8 +19,8 @@ class ListRequisitions extends ListRecords
     {
         return [Actions\CreateAction::make()];
     }
-    protected function getHeaderWidgets(): array
-    {
-        return [Widgets\StatsOverview::class];
-    }
+    // protected function getHeaderWidgets(): array
+    // {
+    //     return [Widgets\StatsOverview::class];
+    // }
 }

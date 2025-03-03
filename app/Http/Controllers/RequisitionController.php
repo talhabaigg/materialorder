@@ -89,6 +89,7 @@ class RequisitionController extends Controller
         return redirect()->back()->with('success', __('Comment saved'));
     }
 
+    // This generates an import file to use with Premier Construction Software
     public function excelImport(Requisition $requisition)
     {
         // Generate a unique file name with a UUID
@@ -154,7 +155,7 @@ class RequisitionController extends Controller
                     $formattedCostcode = substr($costcode, 0, 2) . '-' . substr($costcode, 2);
                     $row = [
                         'AP Subledger' => 'AP',
-                        'PO #' => 'Next #',
+                        'PO #' => 'NEXT #',
                         'Vendor Code' => $requisition->supplier_name,
                         'Job #' => $requisition->site_reference,
                         'Memo' => $requisition->notes,
@@ -195,105 +196,108 @@ class RequisitionController extends Controller
         return response()->download($filePath, $fileName)->deleteFileAfterSend();
     }
 
-    public function sageImport(Requisition $requisition)
-    {
-        // Define the file path and name
-        $filePath = storage_path('app/public/sage_import.txt');
-        $file = fopen($filePath, 'w');
-        $poDate = now()->format('d/m/Y');
-        $currentDate = now();
-        $itemBase = ItemBase::whereDate('effective_from', '<=', $currentDate)
-            ->whereDate('effective_to', '>=', $currentDate)->orWhereNull('effective_to')
-            ->first();
-        // Prepare CSV headers
-        $headers = [
-            'C',
-            '',
-            '',
-            '',
-            // 'ALLF00', //VENDOR CODE
-            $requisition->supplier_name,
-            // '22/11/2024', //PO DATE
-            $poDate,
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            $formattedDate = Carbon::parse($requisition->date_required)->format('d/m/Y'),
-
-        ];
-        fputcsv($file, $headers);
-        foreach ($requisition->lineItems as $item) {
-            $materialItem = MaterialItem::where('code', $item->item_code)->first();
-            $costcode = $materialItem ? $materialItem->costcode : '';
-            if (strlen($costcode) == 5) {
-                // Split the costcode into two parts: first 2 digits and the last 3 digits
-                $costcode = substr($costcode, 0, 2) . '-' . substr($costcode, 2);
-            }
 
 
-            $projectprice = ItemProjectPrice::where('item_code', $item->item_code)->where('project_number', $requisition->site_reference)->first()?->price;
-            if ($projectprice) {
-                $cost = $projectprice;
-            } else
-                $cost = ItemBasePrice::where('material_item_code', $item->item_code)->where('item_base_id', $itemBase ? $itemBase->id : 0)->first()?->price;
+    //Sage import is not relevant to the current project anymore. It has been removed.
+    // public function sageImport(Requisition $requisition)
+    // {
+    //     // Define the file path and name
+    //     $filePath = storage_path('app/public/sage_import.txt');
+    //     $file = fopen($filePath, 'w');
+    //     $poDate = now()->format('d/m/Y');
+    //     $currentDate = now();
+    //     $itemBase = ItemBase::whereDate('effective_from', '<=', $currentDate)
+    //         ->whereDate('effective_to', '>=', $currentDate)->orWhereNull('effective_to')
+    //         ->first();
+    //     // Prepare CSV headers
+    //     $headers = [
+    //         'C',
+    //         '',
+    //         '',
+    //         '',
+    //         // 'ALLF00', //VENDOR CODE
+    //         $requisition->supplier_name,
+    //         // '22/11/2024', //PO DATE
+    //         $poDate,
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         '',
+    //         $formattedDate = Carbon::parse($requisition->date_required)->format('d/m/Y'),
 
-            $description = str_replace('"', '""', $item->description);
-            $data = [
-                'CI',              // Type
-                '',                // Field1
-                '',                // Field2
-                $description ?? '',  // Description
-                '',
-                $poDate,           // PO Date (repeats for each line)
-                '',
-                $requisition->site_reference,      // Code1
-                '',                // Field3
-                $costcode,          // Code2
-                'M',               // Unit Type
-                'GST',             // Tax Type
-                '',                // Field4
-                $item->qty ?? '0',    // Quantity (unit qty)
-                $cost, // Unit cost per item
-                '',                // Field5
-                '',                // Field6
-                '',                // Field7
-                '',                // Field8
-                '',                // Field9
-                $item->item_code,      // Reference
-                '',                // Field10
-                '',                // Field11
-                '',                // Field12
-                '',                // Field13
-                '',                // Field14
-            ];
-            // Write each row to the file without unnecessary quotes
-            fputcsv($file, $data, ',', '"');  // Ensure no quotes are added // Ensure no quotes are added
-            // The fourth argument controls the enclosure (use empty quotes for no enclosure)
-        }
+    //     ];
+    //     fputcsv($file, $headers);
+    //     foreach ($requisition->lineItems as $item) {
+    //         $materialItem = MaterialItem::where('code', $item->item_code)->first();
+    //         $costcode = $materialItem ? $materialItem->costcode : '';
+    //         if (strlen($costcode) == 5) {
+    //             // Split the costcode into two parts: first 2 digits and the last 3 digits
+    //             $costcode = substr($costcode, 0, 2) . '-' . substr($costcode, 2);
+    //         }
+
+
+    //         $projectprice = ItemProjectPrice::where('item_code', $item->item_code)->where('project_number', $requisition->site_reference)->first()?->price;
+    //         if ($projectprice) {
+    //             $cost = $projectprice;
+    //         } else
+    //             $cost = ItemBasePrice::where('material_item_code', $item->item_code)->where('item_base_id', $itemBase ? $itemBase->id : 0)->first()?->price;
+
+    //         $description = str_replace('"', '""', $item->description);
+    //         $data = [
+    //             'CI',              // Type
+    //             '',                // Field1
+    //             '',                // Field2
+    //             $description ?? '',  // Description
+    //             '',
+    //             $poDate,           // PO Date (repeats for each line)
+    //             '',
+    //             $requisition->site_reference,      // Code1
+    //             '',                // Field3
+    //             $costcode,          // Code2
+    //             'M',               // Unit Type
+    //             'GST',             // Tax Type
+    //             '',                // Field4
+    //             $item->qty ?? '0',    // Quantity (unit qty)
+    //             $cost, // Unit cost per item
+    //             '',                // Field5
+    //             '',                // Field6
+    //             '',                // Field7
+    //             '',                // Field8
+    //             '',                // Field9
+    //             $item->item_code,      // Reference
+    //             '',                // Field10
+    //             '',                // Field11
+    //             '',                // Field12
+    //             '',                // Field13
+    //             '',                // Field14
+    //         ];
+    //         // Write each row to the file without unnecessary quotes
+    //         fputcsv($file, $data, ',', '"');  // Ensure no quotes are added // Ensure no quotes are added
+    //         // The fourth argument controls the enclosure (use empty quotes for no enclosure)
+    //     }
 
 
 
 
-        // Close the file
-        fclose($file);
+    //     // Close the file
+    //     fclose($file);
 
-        return response()->download($filePath, $requisition->requisition_number . '-sage_import_.txt')->deleteFileAfterSend();
+    //     return response()->download($filePath, $requisition->requisition_number . '-sage_import_.txt')->deleteFileAfterSend();
 
-    }
+    // }
 }

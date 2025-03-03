@@ -9,14 +9,14 @@ use App\Models\RequisitionLineItem;
 
 class TotalSpentByProjectsChart extends ChartWidget
 {
-    protected int | string | array $columnSpan = [
+    protected int|string|array $columnSpan = [
         'sm' => 1,
         '8xl' => 3,
     ];
     protected static ?string $heading = 'Material Ordered by Project in $';
     protected static ?int $sort = 1;
     protected function getData(): array
-    { 
+    {
         $startOfRange = now()->subMonths(3)->startOfMonth();
         $endOfRange = now()->endOfMonth();
 
@@ -32,12 +32,14 @@ class TotalSpentByProjectsChart extends ChartWidget
             'labels' => $months->toArray(),
             'datasets' => [],
         ];
-        $projects = Project::with(['requisitions.lineItems' => function ($query) use ($startOfRange, $endOfRange) {
-            $query->whereBetween('created_at', [$startOfRange, $endOfRange]);
-        }])->get();
+        $projects = Project::with([
+            'requisitions.lineItems' => function ($query) use ($startOfRange, $endOfRange) {
+                $query->whereBetween('created_at', [$startOfRange, $endOfRange]);
+            }
+        ])->get();
         foreach ($projects as $project) {
             $data = [];
-    
+
             foreach ($months as $month) {
                 // Sum the costs for the current project and month
                 $monthlyTotal = $project->requisitions
@@ -48,21 +50,21 @@ class TotalSpentByProjectsChart extends ChartWidget
                     ->sum(function ($lineItem) {
                         return $lineItem->qty * $lineItem->cost;
                     });
-    
+
                 $data[] = $monthlyTotal;
-                
+
             }
-    
+
             $datasets['datasets'][] = [
                 'label' => $project->name,
                 'data' => $data,
-                
+
             ];
         }
-     
+
         return $datasets;
-        
-       
+
+
     }
 
     protected function getType(): string

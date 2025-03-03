@@ -10,7 +10,6 @@ class Requisition extends Model
 {
     use HasFactory, SoftDeletes;
 
-
     protected $fillable = [
         'date_required',
         'pickup_time',
@@ -59,10 +58,6 @@ class Requisition extends Model
 
 
     }
-
-
-
-
     public function lineItems()
     {
         return $this->hasMany(RequisitionLineItem::class);

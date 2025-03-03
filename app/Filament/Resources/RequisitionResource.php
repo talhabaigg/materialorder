@@ -38,6 +38,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel\Concerns\HasAvatars;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
@@ -60,9 +61,10 @@ use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Filters\TrashedFilter;
 use LaraZeus\Popover\Tables\PopoverColumn;
 use App\Notifications\RequisitionProcessed;
-use Filament\Tables\Columns\CheckboxColumn;
 // use App\Filament\Resources\RequisitionResource\Widgets\StatsOverview;
+use Filament\Tables\Columns\CheckboxColumn;
 use Filament\Tables\Actions\ReplicateAction;
+use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\AvatarProviders\UiAvatarsProvider;
@@ -634,6 +636,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                 TrashedFilter::make(),
 
             ])
+
             ->actions([
                 Tables\Actions\DeleteAction::make()->iconButton()->tooltip('Delete Requisition')->requiresConfirmation()->visible(fn(): bool => Auth::check() && Auth::user()->role('super_admin')),
 
@@ -647,7 +650,7 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                             ->required()
                             ->acceptedFileTypes(['text/csv'])
                             ->label(
-                                'Csv file must have the headers "item_code", "description", "qty", "cost" - Excel is not supported. Uploading items will replace any existing items - proceed with caution.'
+                                'Csv file must have the headers "item_code", "description", "qty" - .xlsx is not supported. Uploading items will replace any existing items - proceed with caution.'
                             ),
                     ])
                     ->action(function (array $data, Requisition $record): void {

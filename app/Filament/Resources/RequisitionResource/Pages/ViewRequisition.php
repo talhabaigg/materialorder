@@ -83,7 +83,7 @@ class ViewRequisition extends ViewRecord implements HasForms
                         ->required()
                         ->acceptedFileTypes(['text/csv'])
                         ->label(
-                            'Csv file must have the headers "item_code", "description", "qty", "cost" - Excel is not supported. Uploading items will replace any existing items - proceed with caution.'
+                            'Csv file must have the headers "item_code", "description", "qty" - .xlsx is not supported. Uploading items will replace any existing items - proceed with caution.'
                         ),
                 ])
                 ->action(function (array $data, Requisition $record): void {
