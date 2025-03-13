@@ -30,7 +30,7 @@ class RequisitionProcessedNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return [FcmChannel::class, 'mail']; 
+        return ['mail'];
     }
 
     /**
@@ -39,28 +39,27 @@ class RequisitionProcessedNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject($this->requisition->requisition_number.'- Has Been Approved')
-                    ->line('Your Requisition Has Been Approved')
-                    ->greeting('Hello ' . $notifiable->name . ',')
-                    ->line('Your requisition ' . $this->requisition->requisition_number . ' has been processed.')
-                    ->action('View Requisition', url('/admin/requisitions/' . $this->requisition->id.'/view'))
-                    ->line('Thank you for using our application!');
+            ->subject($this->requisition->requisition_number . '- Has Been Processed')
+            ->greeting('Hello ' . $notifiable->name . ',')
+            ->line('Your requisition ' . $this->requisition->requisition_number . ' has been processed.')
+            ->action('View Requisition', url('/admin/requisitions/' . $this->requisition->id . '/view'))
+            ->line('Thank you for using our application!');
     }
 
-    public function toFcm($notifiable): FcmMessage
-    {
-        return (new FcmMessage(notification: new FcmNotification(
-                title: $this->requisition->requisition_number.' - Approved',
-                body: 'Your requisition has been processed.',
-                // image: 'http://example.com/your-image-url.png' // Optional image
-            )))
-            ->data([
-                'requisition_id' => $this->requisition->id,
-                'is_approved' => true,
-                'url' => url('/admin/requisitions/' . $this->requisition->id . '/view'),
-            ]);
-            
-    }
+    // public function toFcm($notifiable): FcmMessage
+    // {
+    //     return (new FcmMessage(notification: new FcmNotification(
+    //             title: $this->requisition->requisition_number.' - Approved',
+    //             body: 'Your requisition has been processed.',
+    //             // image: 'http://example.com/your-image-url.png' // Optional image
+    //         )))
+    //         ->data([
+    //             'requisition_id' => $this->requisition->id,
+    //             'is_approved' => true,
+    //             'url' => url('/admin/requisitions/' . $this->requisition->id . '/view'),
+    //         ]);
+
+    // }
 
     /**
      * Get the array representation of the notification.
@@ -70,7 +69,7 @@ class RequisitionProcessedNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-             'requisition_id' => $this->requisition->id,
+            'requisition_id' => $this->requisition->id,
             'is_approved' => true
         ];
     }

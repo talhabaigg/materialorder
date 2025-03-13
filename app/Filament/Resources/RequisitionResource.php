@@ -692,7 +692,10 @@ class RequisitionResource extends Resource implements HasShieldPermissions
                             } else {
                                 $timeMessage = 'On ' . $processedAt->format('jS F, Y') . ' at ' . $processedAt->format('g A');
                             }
-                            $record->creator->notify(new RequisitionProcessedNotification($record));
+                            // Send the notification only if the requisition is approved
+                            if ($record->is_approved) {
+                                $record->creator->notify(new RequisitionProcessedNotification($record));
+                            }
                             $record->creator->notify(
                                 Notification::make()
                                     ->title('Requisition Processed: ' . $record->requisition_number) // Title with requisition number
