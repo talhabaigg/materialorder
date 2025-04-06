@@ -147,15 +147,18 @@ class RequisitionResource extends Resource implements HasShieldPermissions
         foreach ($csvData as $row) {
             // Assuming static::getMaterialFromState is the method to fetch material
             $material = static::getMaterialFromState($row[0], $record->project_id);
+
             $newLineItems[] = [
                 'requisition_id' => $record->id,
-                'item_code' => $material->code ?? 'upload_failed',
-                'description' => $material->description ?? 'upload_failed',
+                'item_code' => $material->code ?? $row[0],
+                'description' => $material->description ?? ($row[1] . '-NA'),
                 'qty' => $row[2],
                 'cost' => $material->cost ?? 0,
                 'price_list' => $material->price_list ?? 'NA',
             ];
         }
+
+        // dd($newLineItems);
 
         if (!empty($newLineItems)) {
             $record->lineItems()->delete();

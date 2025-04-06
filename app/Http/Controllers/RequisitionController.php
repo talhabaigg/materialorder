@@ -151,8 +151,14 @@ class RequisitionController extends Controller
                 // Iterate over line items and prepare each row
                 foreach ($requisition->lineItems as $index => $lineItem) {
 
-                    $costcode = MaterialItem::where('code', $lineItem->item_code)->first()->costcode;
-                    $formattedCostcode = substr($costcode, 0, 2) . '-' . substr($costcode, 2);
+                    $materialItem = MaterialItem::where('code', $lineItem->item_code)->first();
+                    $costcode = $materialItem?->costcode;
+
+                    // Format only if costcode is present
+                    $formattedCostcode = $costcode
+                        ? substr($costcode, 0, 2) . '-' . substr($costcode, 2)
+                        : 'N/A'; // or '' or null depending on what you want in export
+
                     $row = [
                         'AP Subledger' => 'AP',
                         'PO #' => 'NEXT #',
@@ -184,7 +190,6 @@ class RequisitionController extends Controller
                         'Discount %' => ''
                     ];
 
-                    // Append the row to the collection
                     $rows->push($row);
                 }
 
